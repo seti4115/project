@@ -47,3 +47,6 @@ class User(AbstractUser):
             return f"{self.first_name} {self.last_name}"
         else:
             return self.username
+
+
+

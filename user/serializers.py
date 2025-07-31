@@ -35,11 +35,8 @@ class RegisterSerializer(ModelSerializer):
     first_name = serializers.CharField(validators=[persian_validator, ])
     last_name = serializers.CharField(validators=[persian_validator, ])
     email = serializers.EmailField(required=False)
+    password = serializers.CharField()
     confirm_password = serializers.CharField()
-
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'username', 'phone', 'email', 'password', 'confirm_password']
 
     def validate(self, data):
         password = data.get('password')

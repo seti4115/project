@@ -37,8 +37,7 @@ class LoginAPIView(APIView):
 
 class RegisterAPIView(APIView):
     def get(self, request):
-        serializer = RegisterSerializer()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)

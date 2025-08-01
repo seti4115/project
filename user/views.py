@@ -40,15 +40,15 @@ class RegisterAPIView(APIView):
             last_name = vd.get('last_name')
             username = vd.get('username')
             phone = vd.get('phone')
-            email = vd.get('email')
+            email = vd.get('email', None)
             password = vd.get('password')
 
             user = User.objects.create(
                 first_name=first_name,
                 last_name=last_name,
                 username=username,
-                phone=phone,
                 email=email,
+                phone=phone,
             )
             user.set_password(password)
             user.save()

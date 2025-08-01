@@ -38,15 +38,24 @@ class RegisterSerializer(Serializer):
     password = serializers.CharField()
     confirm_password = serializers.CharField()
 
+    def validate_phone(self, data):
+        if data:
+            user = User.objects.filter(phone=data)
+            if user.exists():
+                raise serializers.ValidationError(_('Phone number already in use'))
+        return data
+
+    def validate_username(self, data):
+        if data:
+            user = User.objects.filter(username=data)
+            if user.exists():
+                raise serializers.ValidationError(_('Username already in use'))
+        return data
+
     def validate(self, data):
+
         password = data.get('password')
         confirm_password = data.get('confirm_password')
-
-        user = User.objects.filter(phone=data.get('phone')) or User.objects.filter(
-            email=data.get('email')) or User.objects.filter(username=data.get('username'))
-
-        if user.exists():
-            raise ValidationError(_('Phone number or Username or Email already in use'))
 
         if password != confirm_password:
             raise ValidationError(_("Your passwords didn't match."))

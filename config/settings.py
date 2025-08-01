@@ -21,11 +21,11 @@ INSTALLED_APPS = [
     # internal
     'home.apps.HomeConfig',
     'user.apps.UserConfig',
+    'admin_panel.apps.AdminPanelConfig',
     # external
     'rest_framework',
-    'drf_spectacular',
-    'drf_spectacular_sidecar',
     'corsheaders',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

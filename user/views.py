@@ -14,30 +14,23 @@ User = get_user_model()
 
 class LoginAPIView(APIView):
 
-    def get(self, request):
-        if request.user.is_authenticated:
-            return Response({'message': _('You are already logged in.')})
-        return Response({'message': _('Please enter your phone number')}, status=status.HTTP_200_OK)
-
     def post(self, request, *args, **kwargs):
-        serializer = UserLoginSerializer(data=request.data)
+        if not request.user.is_authenticated:
+            serializer = UserLoginSerializer(data=request.data)
+            if serializer.is_valid():
 
-        if serializer.is_valid():
-            phone = serializer.validated_data.get('phone')
-            password = serializer.validated_data.get('password')
-            user = authenticate(phone, password)
-
-            if user is not None:
-                login(request, user)
-                return Response({'message': _("Logged in")}, status=status.HTTP_200_OK)
-
-        else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                print(serializer.errors)
+                phone = serializer.validated_data.get('phone')
+                password = serializer.validated_data.get('password')
+                user = authenticate(phone, password)
+                if user is not None:
+                    login(request, user)
+                    return Response({'message': _("Logged in")}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": _('you are logged in.')}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegisterAPIView(APIView):
-    def get(self, request):
-        return Response(status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -59,6 +52,6 @@ class RegisterAPIView(APIView):
             )
             user.set_password(password)
             user.save()
-            return redirect(reverse('login'))
+            return Response(status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

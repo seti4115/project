@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import check_password
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import Serializer, ModelSerializer
+from rest_framework.serializers import Serializer
 
 from user.validators import phone_validator, english_validator, persian_validator
 
@@ -29,7 +29,7 @@ class UserLoginSerializer(Serializer):
         return data
 
 
-class RegisterSerializer(ModelSerializer):
+class RegisterSerializer(Serializer):
     phone = serializers.CharField(validators=[phone_validator], max_length=12, min_length=12)
     username = serializers.CharField(validators=[english_validator, ])
     first_name = serializers.CharField(validators=[persian_validator, ])

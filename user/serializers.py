@@ -12,7 +12,7 @@ User = get_user_model()
 
 class UserLoginSerializer(Serializer):
     phone = serializers.CharField(validators=[phone_validator], max_length=12, min_length=12)
-    password = serializers.CharField()
+    password = serializers.CharField(min_length=8, max_length=30)
 
     def validate(self, data):
         phone = data.get('phone')
@@ -21,35 +21,35 @@ class UserLoginSerializer(Serializer):
         try:
             user = User.objects.get(phone=phone)
         except User.DoesNotExist:
-            raise serializers.ValidationError(_('Phone number not found'))
+            raise serializers.ValidationError(_('کاربری با این شماره تلفن یافت نشد!'))
 
         if not check_password(password, user.password):
-            raise serializers.ValidationError(_('Password or Phone number incorrect'))
+            raise serializers.ValidationError(_('شماره تلفن یا رمز عبور اشتباه می باشد!'))
 
         return data
 
 
 class RegisterSerializer(Serializer):
     phone = serializers.CharField(validators=[phone_validator], max_length=12, min_length=12)
-    username = serializers.CharField(validators=[english_validator, ])
+    username = serializers.CharField(validators=[english_validator, ], min_length=5, max_length=30)
     first_name = serializers.CharField(validators=[persian_validator, ])
     last_name = serializers.CharField(validators=[persian_validator, ])
-    email = serializers.EmailField(required=False)
-    password = serializers.CharField()
-    confirm_password = serializers.CharField()
+    email = serializers.EmailField(required=False, allow_blank=True, default="")
+    password = serializers.CharField(min_length=8, max_length=30, validators=[english_validator, ])
+    confirm_password = serializers.CharField(validators=[persian_validator, ], min_length=8, max_length=30)
 
     def validate_phone(self, data):
         if data:
             user = User.objects.filter(phone=data)
             if user.exists():
-                raise serializers.ValidationError(_('Phone number already in use'))
+                raise serializers.ValidationError(_('این شماره تلفن قبلا ثبت شده است!'))
         return data
 
     def validate_username(self, data):
         if data:
             user = User.objects.filter(username=data)
             if user.exists():
-                raise serializers.ValidationError(_('Username already in use'))
+                raise serializers.ValidationError(_('این نام کاربری قبلا ثبت شده است!'))
         return data
 
     def validate(self, data):
@@ -58,6 +58,6 @@ class RegisterSerializer(Serializer):
         confirm_password = data.get('confirm_password')
 
         if password != confirm_password:
-            raise ValidationError(_("Your passwords didn't match."))
+            raise ValidationError(_("رمز عبور و تکرار رمز عبور مطابقت ندارد!"))
 
         return data

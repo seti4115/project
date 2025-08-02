@@ -1,9 +1,7 @@
 from django.contrib.auth import login, get_user_model
-from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from user.authentications import authenticate
@@ -13,7 +11,6 @@ User = get_user_model()
 
 
 class LoginAPIView(APIView):
-
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             serializer = UserLoginSerializer(data=request.data)

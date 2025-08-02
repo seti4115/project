@@ -11,5 +11,5 @@ english_validator = RegexValidator(
 )
 
 phone_validator = RegexValidator(
-    regex=r"^989\d{2}\s*?\d{3}\s*?\d{4}$", message=_("Invalid phone number."),
+    regex=r"^989\d{2}\s*?\d{3}\s*?\d{4}$", message=_("شماره تلفن نامعتبر است."),
 )

@@ -12,7 +12,7 @@ User = get_user_model()
 
 class UserLoginSerializer(Serializer):
     phone = serializers.CharField(validators=[phone_validator], max_length=12, min_length=12)
-    password = serializers.CharField(min_length=8, max_length=30)
+    password = serializers.CharField()
 
     def validate(self, data):
         phone = data.get('phone')
@@ -36,7 +36,7 @@ class RegisterSerializer(Serializer):
     last_name = serializers.CharField(validators=[persian_validator, ])
     email = serializers.EmailField(required=False, allow_blank=True, default="")
     password = serializers.CharField(min_length=8, max_length=30, validators=[english_validator, ])
-    confirm_password = serializers.CharField(validators=[persian_validator, ], min_length=8, max_length=30)
+    confirm_password = serializers.CharField(validators=[english_validator, ], min_length=8, max_length=30)
 
     def validate_phone(self, data):
         if data:

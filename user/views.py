@@ -52,3 +52,10 @@ class RegisterAPIView(APIView):
             return Response(status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AuthStatusAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return Response({'login': True}, status=status.HTTP_200_OK)
+        return Response({"login": False}, status=status.HTTP_400_BAD_REQUEST)

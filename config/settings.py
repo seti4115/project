@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'home.apps.HomeConfig',
     'user.apps.UserConfig',
     'admin_panel.apps.AdminPanelConfig',
+    'request.apps.RequestConfig',
     # external
     'rest_framework',
     'corsheaders',

@@ -1,8 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission, Group
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from user.models import UserBase
+User = get_user_model()
 
 
 class Access(models.TextChoices):
@@ -10,22 +11,12 @@ class Access(models.TextChoices):
     admin = 'admin', 'admin'
 
 
-class AdminPanel(UserBase):
-    access = models.CharField(choices=Access.choices, default=Access.admin, max_length=15)
-    groups = models.ManyToManyField(
-        Group,
-        related_name='adminpanel_user_set',
-        blank=True,
-        help_text='The groups this user belongs to.',
-        verbose_name='groups'
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name='adminpanel_permission_set',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions'
-    )
+class AdminPanel(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('user'), null=True)
+    access = models.CharField(choices=Access.choices, default=Access.admin, max_length=15, verbose_name=_('access'))
+
+    def __str__(self):
+        return f"{self.user}"
 
     class Meta:
         verbose_name_plural = _('admins panel')

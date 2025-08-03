@@ -26,6 +26,7 @@ class Request(models.Model):
     phone = models.CharField(_('شماره تلفن'), validators=[phone_validator, ], max_length=12)
     message = models.TextField(verbose_name=_('پیغام'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('ایجاد شده در'))
+    status = models.CharField(_(''), choices=Status.choices, default=Status.PENDING, max_length=10)
 
     def __str__(self):
         return f'{self.id} - {self.phone} - {self.type}'

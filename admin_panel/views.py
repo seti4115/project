@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework import permissions
+from rest_framework import permissions, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -27,7 +27,9 @@ class UserListAdminPanel(ModelViewSet):
     model = User
     queryset = User.objects.all()
     serializer_class = UserEditSerializer
-    http_method_names = ['get', 'put', 'patch', 'delete']
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['username', 'phone', 'id', 'email', 'last_name']
+    ordering_fields = ['phone', 'last_name', 'date_joined', 'last_login']
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:

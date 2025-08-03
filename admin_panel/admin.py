@@ -6,9 +6,4 @@ from admin_panel.models import AdminPanel, Access
 
 @admin.register(AdminPanel)
 class AdminPanelAdmin(admin.ModelAdmin):
-    def save_model(self, request, obj, form, change):
-        if obj.access == Access.superuser.value:
-            obj.is_superuser = True
-        if obj.access == Access.admin.value:
-            obj.is_staff = True
-        return super().save_model(request, obj, form, change)
+    pass

@@ -7,12 +7,12 @@ User = get_user_model()
 
 
 class Access(models.TextChoices):
-    superuser = 'superuser', 'superuser'
-    admin = 'admin', 'admin'
+    superuser = 'superuser', 'سوپر ادمین'
+    admin = 'admin', 'ادمین عادی'
 
 
 class AdminPanel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('user'), null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('user'))
     access = models.CharField(choices=Access.choices, default=Access.admin, max_length=15, verbose_name=_('access'))
 
     def __str__(self):

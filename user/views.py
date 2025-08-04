@@ -64,7 +64,20 @@ class AuthStatusAPIView(APIView):
 
 class UserProfileAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
         user = get_object_or_404(User, pk=request.user.id)
         serializer = ProfileSerializer(user)
         return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=request.user.id)
+        serializer = ProfileSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={
+                'message': _("Profile updated"),
+                'data': serializer.data
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

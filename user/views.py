@@ -81,3 +81,7 @@ class UserProfileAPIView(APIView):
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=request.user.id)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

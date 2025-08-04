@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Request
+
+
+@admin.register(Request)
+class RequestAdmin(admin.ModelAdmin):
+    list_display = ['phone', 'type', 'status', 'created_at']

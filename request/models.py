@@ -30,3 +30,11 @@ class Request(models.Model):
 
     def __str__(self):
         return f'{self.id} - {self.phone} - {self.type}'
+
+    class Meta:
+        verbose_name = _('درخواست')
+        verbose_name_plural = _('درخواست ها')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['phone'])
+        ]

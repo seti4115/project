@@ -61,3 +61,13 @@ class RegisterSerializer(Serializer):
             raise ValidationError(_("رمز عبور و تکرار رمز عبور مطابقت ندارد!"))
 
         return data
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'first_name', 'last_name', 'username', 'phone', 'email', 'date_joined'
+        ]

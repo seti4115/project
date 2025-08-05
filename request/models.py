@@ -21,8 +21,6 @@ class Status(models.TextChoices):
 
 class Request(models.Model):
     type = models.CharField(choices=Type.choices, max_length=10, verbose_name=_('نوع درخواست'))
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name=_('کاربر'), null=True, blank=True,
-                             related_name='requests')
     first_name = models.CharField(_('نام'), max_length=25, validators=[persian_validator, ])
     last_name = models.CharField(_('نام خانوادگی'), max_length=40, validators=[persian_validator, ])
     phone = models.CharField(_('شماره تلفن'), validators=[phone_validator, ], max_length=12)
@@ -44,8 +42,26 @@ class Request(models.Model):
 
 class ConsultingRequest(Request):
     message = models.TextField(_('توضیحات'))
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name=_('کاربر'), null=True, blank=True,
+                             related_name='requests_consulting')
 
     class Meta:
+        verbose_name = _('درخواست مشاوره')
+        verbose_name_plural = _('درخواست های مشاوره')
         indexes = [
             models.Index(fields=['phone',], condition=Q(type=Type.CONSULTING), name='consulting_phone'),
+        ]
+
+class SprayingRequest(Request):
+    land_area = models.PositiveIntegerField(verbose_name=_('مساحت زمین (عدد به هکتار)'))
+    address = models.TextField(verbose_name=_('آدرس زمین'))
+    message = models.TextField(blank=True, verbose_name=_('توضیحات تکمیلی'), null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name=_('کاربر'), null=True, blank=True,
+                             related_name='requests_spraying')
+
+    class Meta:
+        verbose_name = _('درخواست سم پاشی')
+        verbose_name_plural = _('درخواست های سم پاشی')
+        indexes = [
+            models.Index(fields=['phone',], condition=Q(type=Type.SPRAYING), name='spraying_phone'),
         ]

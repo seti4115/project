@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models import Request
+from .models import ConsultingRequest
 
 
-@admin.register(Request)
+@admin.register(ConsultingRequest)
 class RequestAdmin(admin.ModelAdmin):
     list_display = ['phone', 'type', 'status', 'created_at']

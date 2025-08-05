@@ -1,15 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from user.validators import phone_validator
+from user.validators import phone_validator, persian_validator
 
 User = get_user_model()
 
 
 class Type(models.TextChoices):
     CONSULTING = 'consulting', 'مشاوره'
-    SALE = 'sale', 'فروش'
     SPRAYING = 'spraying', 'سم پاشی'
 
 
@@ -23,8 +23,12 @@ class Request(models.Model):
     type = models.CharField(choices=Type.choices, max_length=10, verbose_name=_('نوع درخواست'))
     user = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name=_('کاربر'), null=True, blank=True,
                              related_name='requests')
+    first_name = models.CharField(_('نام'), max_length=25, validators=[persian_validator, ])
+    last_name = models.CharField(_('نام خانوادگی'), max_length=40, validators=[persian_validator, ])
     phone = models.CharField(_('شماره تلفن'), validators=[phone_validator, ], max_length=12)
-    message = models.TextField(verbose_name=_('پیغام'))
+    province = models.CharField(max_length=15, verbose_name=_(''))
+    city = models.CharField(max_length=15, verbose_name=_(''))
+    land_product = models.CharField(max_length=40, verbose_name=_(''))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('ایجاد شده در'))
     status = models.CharField(_('وضعیت'), choices=Status.choices, default=Status.PENDING, max_length=10)
 
@@ -35,6 +39,13 @@ class Request(models.Model):
         verbose_name = _('درخواست')
         verbose_name_plural = _('درخواست ها')
         ordering = ['-created_at']
+        abstract = True
+
+
+class ConsultingRequest(Request):
+    message = models.TextField(_('توضیحات'))
+
+    class Meta:
         indexes = [
-            models.Index(fields=['phone'])
+            models.Index(fields=['phone',], condition=Q(type=Type.CONSULTING), name='consulting_phone'),
         ]

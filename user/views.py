@@ -12,6 +12,11 @@ User = get_user_model()
 
 
 class LoginAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return Response({'login': True}, status=status.HTTP_200_OK)
+        return Response({"login": False}, status=status.HTTP_400_BAD_REQUEST)
+
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             serializer = UserLoginSerializer(data=request.data)
@@ -53,13 +58,6 @@ class RegisterAPIView(APIView):
             return Response(status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AuthStatusAPIView(APIView):
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return Response({'login': True}, status=status.HTTP_200_OK)
-        return Response({"login": False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfileAPIView(APIView):

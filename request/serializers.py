@@ -20,7 +20,13 @@ class UserRequestConsultingSerializer(serializers.ModelSerializer):
         persian_validator(last_name)
         return data
 
+
 class ViewRequestConsultingSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source='get_status_display', read_only=True)
+
     class Meta:
         model = ConsultingRequest
         fields = ['id', 'land_product', 'message', 'status', 'created_at']
+
+    def get_status_display(self, obj):
+        return obj.get_status_display()

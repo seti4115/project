@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from request.models import Type
-from request.serializers import UserRequestConsultingSerializer
+from request.models import Type, ConsultingRequest
+from request.serializers import UserRequestConsultingSerializer, ViewRequestConsultingSerializer
 
 
 class UserRequestConsultingAPIView(APIView):
@@ -17,3 +17,11 @@ class UserRequestConsultingAPIView(APIView):
             request_consulting.save()
             return Response(status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        requests = ConsultingRequest.objects.filter(phone=request.user.phone, type=Type.CONSULTING)
+        serializer = ViewRequestConsultingSerializer(requests, many=True)
+        return Response(serializer.data)

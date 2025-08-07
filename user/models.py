@@ -13,12 +13,13 @@ class UserBase(AbstractUser):
     username = models.CharField(_('نام کاربری'), max_length=30, unique=True, validators=[english_validator])
     phone = models.CharField(_("شماره تلفن"), max_length=12, validators=[phone_validator], unique=True, db_index=True)
     email = models.EmailField(_('آدرس ایمیل'), blank=True, null=True)
-    activation_code = models.CharField(_('کد فعالسازی'), max_length=128, editable=False, null=True)
+    activation_code = models.CharField(_('کد فعالسازی'), max_length=128, editable=False)
     is_admin = models.BooleanField(default=False, verbose_name=_('ادمین'))
 
     def save(self, *args, **kwargs):
         if self.activation_code is None:
             self.activation_code = get_random_string(128)
+            print(self.activation_code)
         return super(UserBase, self).save(*args, **kwargs)
 
     def __str__(self):

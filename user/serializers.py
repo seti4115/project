@@ -71,3 +71,19 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = [
             'first_name', 'last_name', 'username', 'phone', 'email', 'date_joined'
         ]
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField()
+    confirm_password = serializers.CharField()
+
+    def validate(self, data):
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
+        if password != confirm_password:
+            raise ValidationError(_('رمز عبور و تکرار رمز عبور مطابقت ندارد!'))
+        return data

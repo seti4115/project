@@ -1,12 +1,17 @@
 from django.contrib.auth import login, get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import gettext as _
 from rest_framework import status, permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config import settings
 from user.authentications import authenticate
-from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer
+from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer, ForgotPasswordSerializer
 
 User = get_user_model()
 
@@ -83,3 +88,43 @@ class UserProfileAPIView(APIView):
         user = get_object_or_404(User, pk=request.user.id)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ForgotPasswordAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            user = User.objects.filter(email=email).first()
+            if user:
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                print(f'uid {uid} \n token {token}')
+                send_mail('reset password',
+                          f'url for reset your password : http://127.0.0.1:8000/reset-password/{uid}/{token}/',
+                          from_email=settings.EMAIL_HOST, recipient_list=[email, ],
+                          fail_silently=False, )
+                return Response(status=status.HTTP_200_OK)
+            return Response({"message": _('کاربری با این ایمیل یافت نشد!')}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResetPasswordAPIView(APIView):
+    def post(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            print(f'uidb64 {uid} \n token {token} \n uid {uid}')
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({'error': 'لینک نامعتبر است'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not default_token_generator.check_token(user, token):
+            return Response({'error': 'توکن منقضی شده یا نامعتبر است'}, status=status.HTTP_400_BAD_REQUEST)
+
+        password = request.data.get('password')
+        if not password:
+            return Response({'error': 'رمز جدید وارد نشده'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(password)
+        user.save()
+        return Response({'message': 'رمز عبور با موفقیت تغییر یافت'}, status=status.HTTP_200_OK)

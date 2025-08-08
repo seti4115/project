@@ -11,9 +11,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(read_only=True)
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_admin']
+        fields = ['phone', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_admin']
 
 
 class AllSerializer(serializers.Serializer):

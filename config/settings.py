@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from environs import env
@@ -90,31 +91,37 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 AUTH_USER_MODEL = 'user.User'
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:5173',
-    'http://localhost:8000',
-)
 
-CORS_ALLOW_CREDENTIALS = True
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = False
-CSRF_TRUSTED_ORIGINS = [
+CORS_ORIGIN_WHITELIST = (
+    'https://seti4115.pythonanywhere.com',
     'http://localhost:5173',
-    'http://localhost:8000',
+    )
+CORS_ORIGIN_ALLOW_ALL=True
+CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = 'None'
+# CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://seti4115.pythonanywhere.com/',
+    'http://localhost:5173',
 ]
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'profile'
 LOGOUT_REDIRECT_URL = 'login'
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')
@@ -124,3 +131,10 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+STATICFILES_DIRS = [BASE_DIR / "static"]
+MEDIA_ROOT = BASE_DIR / 'media/'
+MEDIA_URL = '/media/'

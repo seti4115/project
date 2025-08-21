@@ -26,14 +26,12 @@ class LoginAPIView(APIView):
         if not request.user.is_authenticated:
             serializer = UserLoginSerializer(data=request.data)
             if serializer.is_valid():
-
-                print(serializer.errors)
                 phone = serializer.validated_data.get('phone')
                 password = serializer.validated_data.get('password')
                 user = authenticate(phone, password)
                 if user is not None:
                     login(request, user)
-                    return Response({'message': _("Logged in")}, status=status.HTTP_200_OK)
+                    # return Response({'message': _("Logged in")}, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": _('you are logged in.')}, status=status.HTTP_400_BAD_REQUEST)
 

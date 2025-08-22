@@ -24,9 +24,9 @@ class Request(models.Model):
     first_name = models.CharField(_('نام'), max_length=25, validators=[persian_validator, ])
     last_name = models.CharField(_('نام خانوادگی'), max_length=40, validators=[persian_validator, ])
     phone = models.CharField(_('شماره تلفن'), validators=[phone_validator, ], max_length=12)
-    province = models.CharField(max_length=15, verbose_name=_(''))
-    city = models.CharField(max_length=15, verbose_name=_(''))
-    land_product = models.CharField(max_length=40, verbose_name=_(''))
+    province = models.CharField(max_length=150, verbose_name=_(''))
+    city = models.CharField(max_length=150, verbose_name=_(''))
+    land_product = models.CharField(max_length=200, verbose_name=_(''))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('ایجاد شده در'))
     status = models.CharField(_('وضعیت'), choices=Status.choices, default=Status.PENDING, max_length=10)
 

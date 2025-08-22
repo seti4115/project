@@ -1,6 +1,5 @@
-import os
 from pathlib import Path
-
+import os
 from environs import env
 
 env.read_env()
@@ -10,7 +9,7 @@ SECRET_KEY = env('key')
 
 DEBUG = env('debug')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -90,38 +89,39 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
 }
 
 AUTH_USER_MODEL = 'user.User'
 
+# CORS_ORIGIN_WHITELIST = (
+#     'https://seti4115.pythonanywhere.com',
+#     'http://localhost:5173',
+#     )
 
-CORS_ORIGIN_WHITELIST = (
-    'https://seti4115.pythonanywhere.com',
-    'http://localhost:5173',
-    )
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ALLOW_ALL_ORIGIN=True
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = 'None'
-# CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'None'
+
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
-    'https://seti4115.pythonanywhere.com/',
-    'http://localhost:5173',
+    "http://localhost:5173",
+    "https://seti4115.pythonanywhere.com",
 ]
-LOGIN_REDIRECT_URL = 'profile'
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://seti4115.pythonanywhere.com",]
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')

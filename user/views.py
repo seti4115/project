@@ -1,19 +1,28 @@
-from django.contrib.auth import login, get_user_model
+from django.contrib.auth import login, get_user_model, logout
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.shortcuts import redirect
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import gettext as _
 from rest_framework import status, permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 from config import settings
 from user.authentications import authenticate
 from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer, ForgotPasswordSerializer
 
 User = get_user_model()
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class CSRFProtect(APIView):
+    def get(self, request, format=None):
+        return Response({"detail": _("CSRF protect required")})
 
 
 class LoginAPIView(APIView):
@@ -62,7 +71,6 @@ class RegisterAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class UserProfileAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -72,6 +80,7 @@ class UserProfileAPIView(APIView):
         return Response(serializer.data)
 
     def put(self, request, *args, **kwargs):
+        print(request.user.is_authenticated)
         user = get_object_or_404(User, pk=request.user.id)
         serializer = ProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
@@ -126,3 +135,12 @@ class ResetPasswordAPIView(APIView):
         user.set_password(password)
         user.save()
         return Response({'message': 'رمز عبور با موفقیت تغییر یافت'}, status=status.HTTP_200_OK)
+
+
+class LogoutAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        logout(request)
+        return redirect(reverse('login'))

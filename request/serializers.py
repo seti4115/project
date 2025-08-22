@@ -7,7 +7,7 @@ from user.validators import phone_validator, persian_validator
 class UserRequestConsultingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsultingRequest
-        fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'message']
+        fields = '__all__'
 
     def validate_phone(self, value):
         phone_validator(value)
@@ -26,7 +26,7 @@ class ViewRequestConsultingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsultingRequest
-        fields = ['id', 'land_product', 'message', 'status', 'created_at']
+        fields = '__all__'
 
     def get_status_display(self, obj):
         return obj.get_status_display()
@@ -37,8 +37,7 @@ class SprayingRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SprayingRequest
-        fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address',
-                  'message']
+        fields = '__all__'
 
 
 class ViewSprayingRequestSerializer(serializers.ModelSerializer):
@@ -46,7 +45,7 @@ class ViewSprayingRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SprayingRequest
-        fields = ['id', 'land_product', 'message', 'status', 'created_at']
+        fields = '__all__'
 
     def get_status_display(self, obj):
         return obj.get_status_display()

@@ -7,7 +7,7 @@ from user.validators import phone_validator, persian_validator
 class UserRequestConsultingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsultingRequest
-        fields = '__all__'
+        fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'message']
 
     def validate_phone(self, value):
         phone_validator(value)
@@ -37,7 +37,7 @@ class SprayingRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SprayingRequest
-        fields = '__all__'
+        fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address', 'message']
 
 
 class ViewSprayingRequestSerializer(serializers.ModelSerializer):

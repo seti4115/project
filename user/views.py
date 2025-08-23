@@ -1,6 +1,7 @@
 from django.contrib.auth import login, get_user_model, logout
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -22,7 +23,8 @@ User = get_user_model()
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CSRFProtect(APIView):
     def get(self, request, format=None):
-        return Response({"detail": _("CSRF protect required")})
+        csrf = get_token(request)
+        return Response({"token": csrf})
 
 
 class LoginAPIView(APIView):
@@ -138,9 +140,10 @@ class ResetPasswordAPIView(APIView):
 
 
 class LogoutAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        logout(request)
-        return redirect(reverse('login'))
+        if user.is_authenticated:
+            logout(request)
+            return Response({"logout":"success"}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)

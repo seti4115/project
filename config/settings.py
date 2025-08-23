@@ -1,5 +1,6 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 from environs import env
 
 env.read_env()
@@ -107,20 +108,19 @@ AUTH_USER_MODEL = 'user.User'
 #     'http://localhost:5173',
 #     )
 
-CORS_ALLOW_ALL_ORIGIN=True
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SAMESITE = 'None'
 
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "https://seti4115.pythonanywhere.com",
+    "https://seti4115.pythonanywhere.com"
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://seti4115.pythonanywhere.com",]
+    "https://seti4115.pythonanywhere.com"
+]
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
 

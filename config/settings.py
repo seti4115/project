@@ -97,7 +97,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'user.authentications.CsrfExemptSessionAuthentication',
     ],
 }
 
@@ -122,7 +122,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://seti4115.pythonanywhere.com"
 ]
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')
 EMAIL_HOST = 'smtp.gmail.com'

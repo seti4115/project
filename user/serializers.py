@@ -65,6 +65,12 @@ class RegisterSerializer(Serializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(allow_blank=True)
+    last_name = serializers.CharField(allow_blank=True)
+    last_name = serializers.CharField(allow_blank=True)
+    username = serializers.CharField(allow_blank=True)
+    email = serializers.EmailField(allow_blank=True)
+    date_joined = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = User

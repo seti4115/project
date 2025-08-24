@@ -7,14 +7,14 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import gettext as _
 from rest_framework import status, permissions
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from config import settings
-from user.authentications import authenticate
+from user.authentications import authenticate, CsrfExemptSessionAuthentication
 from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer, ForgotPasswordSerializer
 
 User = get_user_model()
@@ -42,7 +42,7 @@ class LoginAPIView(APIView):
                 user = authenticate(phone, password)
                 if user is not None:
                     login(request, user)
-                    # return Response({'message': _("Logged in")}, status=status.HTTP_200_OK)
+                    return Response({'message': _("Logged in")}, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": _('you are logged in.')}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -70,19 +70,19 @@ class RegisterAPIView(APIView):
             user.set_password(password)
             user.save()
             return Response(status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserProfileAPIView(APIView):
+class UserProfileAPIView(RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    authentication_classes = [CsrfExemptSessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=request.user.id)
+        user = request.user
         serializer = ProfileSerializer(user)
         return Response(serializer.data)
 
     def put(self, request, *args, **kwargs):
-        print(request.user.is_authenticated)
         user = get_object_or_404(User, pk=request.user.id)
         serializer = ProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():

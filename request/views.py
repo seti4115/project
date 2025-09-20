@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from request.models import Type, ConsultingRequest
+from request.models import Type, ConsultingRequest, SprayingRequest
 from request.serializers import UserRequestConsultingSerializer, ViewRequestConsultingSerializer, \
     SprayingRequestSerializer, ViewSprayingRequestSerializer
 
@@ -44,6 +44,6 @@ class UserRequestSprayingAPIView(APIView):
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        requests = ConsultingRequest.objects.filter(phone=request.user.phone, type=Type.SPRAYING)
+        requests = SprayingRequest.objects.filter(phone=request.user.phone, type=Type.SPRAYING)
         serializer = ViewSprayingRequestSerializer(requests, many=True)
         return Response(serializer.data)

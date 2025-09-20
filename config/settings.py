@@ -115,9 +115,11 @@ SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "http://localhost:8000",
     "https://seti4115.pythonanywhere.com"
 ]
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
     "http://localhost:5173",
     "https://seti4115.pythonanywhere.com"
 ]

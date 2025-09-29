@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
-from rest_framework import permissions, filters
+from rest_framework import permissions, filters, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from admin_panel.serializers import AllSerializer, UserDetailSerializer, UserEditSerializer
+from .models import AdminPanel
 from .permissions import IsAdminPanelPermission, IsSuperAdminPanelPermission
 
 User = get_user_model()
@@ -37,3 +38,11 @@ class UserListAdminPanel(ModelViewSet):
         elif self.action in ['destroy', 'update', 'partial_update']:
             return [IsSuperAdminPanelPermission(), ]
         return super().get_permissions()
+
+
+class IsAdminPanel(APIView):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        admin = AdminPanel.objects.filter(user=user).exists()
+        return Response({'admin': admin}, status=status.HTTP_200_OK)
+

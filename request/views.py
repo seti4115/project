@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -8,7 +9,7 @@ from request.serializers import UserRequestConsultingSerializer, ViewRequestCons
 
 
 class UserRequestConsultingAPIView(APIView):
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs):
         serializer = UserRequestConsultingSerializer(data=request.data)
         if serializer.is_valid():
             request_consulting = serializer.save()
@@ -19,7 +20,10 @@ class UserRequestConsultingAPIView(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args, **kwargs):
+        if request.GET.get("search", None):
+            pass
+            # todo: search code
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -30,7 +34,7 @@ class UserRequestConsultingAPIView(APIView):
 
 class UserRequestSprayingAPIView(APIView):
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs):
         serializer = SprayingRequestSerializer(data=request.data)
         if serializer.is_valid():
             request_spraying = serializer.save()
@@ -41,7 +45,8 @@ class UserRequestSprayingAPIView(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args, **kwargs):
+
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         requests = SprayingRequest.objects.filter(phone=request.user.phone, type=Type.SPRAYING)

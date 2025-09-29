@@ -8,4 +8,5 @@ router.register(r'users', views.UserListAdminPanel, basename='user-list')
 urlpatterns = [
     path('', views.AdminPanelAPIView.as_view(), name='admin-panel'),
     path('', include(router.urls)),
+    path('isadmin/', views.IsAdminPanel.as_view(), name='is_admin'),
 ]

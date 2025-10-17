@@ -20,13 +20,13 @@ class Status(models.TextChoices):
 
 
 class Request(models.Model):
-    type = models.CharField(choices=Type.choices, max_length=10, verbose_name=_('نوع درخواست'))
+    type = models.CharField(choices=Type.choices, max_length=10, verbose_name=_('نوع درخواست'), blank=True)
     first_name = models.CharField(_('نام'), max_length=25, validators=[persian_validator, ])
     last_name = models.CharField(_('نام خانوادگی'), max_length=40, validators=[persian_validator, ])
-    phone = models.CharField(_('شماره تلفن'), validators=[phone_validator, ], max_length=12)
-    province = models.CharField(max_length=150, verbose_name=_(''))
-    city = models.CharField(max_length=150, verbose_name=_(''))
-    land_product = models.CharField(max_length=200, verbose_name=_(''))
+    phone = models.CharField(_('تلفن'), validators=[phone_validator, ], max_length=12)
+    province = models.CharField(max_length=150, verbose_name=_('استان'))
+    city = models.CharField(max_length=150, verbose_name=_('شهر'))
+    land_product = models.CharField(max_length=200, verbose_name=_('محصول زمین'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('ایجاد شده در'))
     status = models.CharField(_('وضعیت'), choices=Status.choices, default=Status.PENDING, max_length=10)
 
@@ -45,12 +45,20 @@ class ConsultingRequest(Request):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name=_('کاربر'), null=True, blank=True,
                              related_name='requests_consulting')
 
+    def save(self, *args, **kwargs):
+        self.type = Type.CONSULTING
+        if self.user:
+            self.first_name = self.user.first_name
+            self.last_name = self.user.last_name
+        return super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = _('درخواست مشاوره')
         verbose_name_plural = _('درخواست های مشاوره')
         indexes = [
-            models.Index(fields=['phone',], condition=Q(type=Type.CONSULTING), name='consulting_phone'),
+            models.Index(fields=['phone', ], condition=Q(type=Type.CONSULTING), name='consulting_phone'),
         ]
+
 
 class SprayingRequest(Request):
     land_area = models.PositiveIntegerField(verbose_name=_('مساحت زمین (عدد به هکتار)'))
@@ -59,9 +67,16 @@ class SprayingRequest(Request):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name=_('کاربر'), null=True, blank=True,
                              related_name='requests_spraying')
 
+    def save(self, *args, **kwargs):
+        self.type = Type.SPRAYING
+        if self.user:
+            self.first_name = self.user.first_name
+            self.last_name = self.user.last_name
+        return super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = _('درخواست سم پاشی')
         verbose_name_plural = _('درخواست های سم پاشی')
         indexes = [
-            models.Index(fields=['phone',], condition=Q(type=Type.SPRAYING), name='spraying_phone'),
+            models.Index(fields=['phone', ], condition=Q(type=Type.SPRAYING), name='spraying_phone'),
         ]

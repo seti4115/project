@@ -10,6 +10,12 @@ from user.validators import phone_validator, english_validator, persian_validato
 User = get_user_model()
 
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'phone']
+
+
 class UserLoginSerializer(Serializer):
     phone = serializers.CharField(validators=[phone_validator], max_length=12, min_length=12)
     password = serializers.CharField()

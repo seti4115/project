@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from admin_panel.serializers import AllSerializer, UserDetailSerializer, UserEditSerializer
+from request.models import ConsultingRequest, SprayingRequest
+from request.serializers import ViewRequestConsultingSerializer, ViewSprayingRequestSerializer
 from .models import AdminPanel
 from .permissions import IsAdminPanelPermission, IsSuperAdminPanelPermission
 
@@ -15,10 +17,15 @@ class AdminPanelAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
 
     def get(self, request, *args, **kwargs):
+        print(request.GET)
         users = User.objects.all()
+        consulting_requests = ConsultingRequest.objects.all().order_by("-created_at")
+        spraying_requests = SprayingRequest.objects.all().order_by("-created_at")
         serializer = AllSerializer(
             {
-                'users': UserDetailSerializer(users, many=True).data,
+                "users": UserDetailSerializer(users, many=True).data,
+                "consulting_requests": ViewRequestConsultingSerializer(consulting_requests, many=True).data,
+                "spraying_requests": ViewSprayingRequestSerializer(spraying_requests, many=True).data,
             }
         )
         return Response(serializer.data)
@@ -45,4 +52,3 @@ class IsAdminPanel(APIView):
         user = request.user
         admin = AdminPanel.objects.filter(user=user).exists()
         return Response({'admin': admin}, status=status.HTTP_200_OK)
-

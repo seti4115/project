@@ -1,13 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from request.serializers import ViewRequestConsultingSerializer, ViewSprayingRequestSerializer
+from user.serializers import UserDetailSerializer
+
 User = get_user_model()
 
-
-class UserDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'phone']
 
 
 class UserEditSerializer(serializers.ModelSerializer):
@@ -19,4 +17,6 @@ class UserEditSerializer(serializers.ModelSerializer):
 
 
 class AllSerializer(serializers.Serializer):
-    users = UserDetailSerializer(many=True)
+    users =                         UserDetailSerializer(many=True)
+    consulting_requests = ViewRequestConsultingSerializer(many=True)
+    spraying_requests = ViewSprayingRequestSerializer(many=True)

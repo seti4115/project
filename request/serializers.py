@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from user.serializers import UserDetailSerializer
 from request.models import ConsultingRequest, SprayingRequest
+from user.serializers import UserDetailSerializer
 from user.validators import phone_validator, persian_validator
 
 
@@ -28,7 +28,8 @@ class ViewRequestConsultingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsultingRequest
-        fields = ["type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at", "status", "message", "user"]
+        fields = ["id", "type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
+                  "status", "message", "user"]
 
     def get_status_display(self, obj):
         return obj.get_status_display()
@@ -39,7 +40,8 @@ class SprayingRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SprayingRequest
-        fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address', 'message']
+        fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address',
+                  'message']
 
 
 class ViewSprayingRequestSerializer(serializers.ModelSerializer):
@@ -48,7 +50,8 @@ class ViewSprayingRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SprayingRequest
-        fields = ["type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at", "status", "land_area", "address", "message", "user"]
+        fields = ["type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
+                  "status", "land_area", "address", "message", "user"]
 
     def get_status_display(self, obj):
         return obj.get_status_display()

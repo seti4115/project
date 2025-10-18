@@ -62,8 +62,15 @@ WSGI_APPLICATION = env('wsgi_application')
 
 DATABASES = {
     'default': {
-        'ENGINE': env('db_engine'),
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'zeraatino',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '54323',
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        }
     }
 }
 

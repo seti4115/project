@@ -1,30 +1,20 @@
 from django.contrib.auth import login, get_user_model, logout
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.middleware.csrf import get_token
-from django.shortcuts import redirect
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import gettext as _
 from rest_framework import status, permissions
 from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
-from django.utils.decorators import method_decorator
+
 from config import settings
 from user.authentications import authenticate, CsrfExemptSessionAuthentication
 from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer, ForgotPasswordSerializer
 
 User = get_user_model()
 
-
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class CSRFProtect(APIView):
-    def get(self, request, format=None):
-        csrf = get_token(request)
-        return Response({"token": csrf})
 
 
 class LoginAPIView(APIView):

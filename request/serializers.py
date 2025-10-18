@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from request.models import ConsultingRequest, SprayingRequest
+from request.models import ConsultingRequest, SprayingRequest, Status
 from user.serializers import UserDetailSerializer
 from user.validators import phone_validator, persian_validator
 
@@ -36,14 +36,18 @@ class ViewRequestConsultingSerializer(serializers.ModelSerializer):
 
 
 class RequestConsultingAdminPanelSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='get_status_display')
-    user = UserDetailSerializer(read_only=True)
+    status = serializers.ChoiceField(choices=Status.choices)
+
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = ConsultingRequest
-        fields = ["id", "type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
-                  "status", "message", "user"]
-        read_only_fields = ["id"]
+        fields = [
+            "id", "type", "first_name", "last_name", "phone",
+            "province", "city", "land_product", "created_at",
+            "status", "status_display", "message", "user"
+        ]
+        read_only_fields = ["id", "status_display"]
 
     def get_status_display(self, obj):
         return obj.get_status_display()
@@ -77,7 +81,7 @@ class SprayingRequestAdminPanelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SprayingRequest
-        fields = ["type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
+        fields = ["id", "type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
                   "status", "land_area", "address", "message", "user"]
         read_only_fields = ["id"]
 

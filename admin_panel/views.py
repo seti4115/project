@@ -38,6 +38,8 @@ class UserListAdminPanel(ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['username', 'phone', 'id', 'email', 'last_name']
     ordering_fields = ['phone', 'last_name', 'date_joined', 'last_login']
+    lookup_field = "phone"
+    lookup_url_kwarg = "phone"
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:

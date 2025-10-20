@@ -62,15 +62,14 @@ WSGI_APPLICATION = env('wsgi_application')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'zeraatino',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '54323',
-        'OPTIONS': {
-            'client_encoding': 'UTF8',
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': 'zeraatino',
+        # 'USER': 'root',
+        # 'PASSWORD': 'hBWSD0Ks1fNZtzubh2E7PAJE',
+        # 'HOST': 'pythonanywhere',
+        # 'PORT': '5432',
     }
 }
 

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db.models import Q
 from rest_framework import permissions, filters, status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -90,16 +91,16 @@ class ConsultingListAdminPanelView(ListCreateAPIView):
                 q = q.filter(created_at__lte=date_before)
 
             if search:
-                q = q.filter(
-                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
-                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
-                # search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
-                # search_query = SearchQuery(search, config="simple")
-                # q = (
-                #     q.annotate(rank=SearchRank(search_vector, search_query))
-                #     .filter(rank__gte=0.1)
-                #     .order_by("-rank")
-                # )
+                # q = q.filter(
+                #     Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
+                #         province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
+                search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
+                search_query = SearchQuery(search, config="simple")
+                q = (
+                    q.annotate(rank=SearchRank(search_vector, search_query))
+                    .filter(rank__gte=0.1)
+                    .order_by("-rank")
+                )
         except Exception as e:
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -153,16 +154,16 @@ class SprayingListAdminPanelView(ListCreateAPIView):
                 q = q.filter(created_at__lte=date_before)
 
             if search:
-                q = q.filter(
-                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
-                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
-                # search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
-                # search_query = SearchQuery(search, config="simple")
-                # q = (
-                #     q.annotate(rank=SearchRank(search_vector, search_query))
-                #     .filter(rank__gte=0.1)
-                #     .order_by("-rank")
-                # )
+                # q = q.filter(
+                #     Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
+                #         province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
+                search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
+                search_query = SearchQuery(search, config="simple")
+                q = (
+                    q.annotate(rank=SearchRank(search_vector, search_query))
+                    .filter(rank__gte=0.1)
+                    .order_by("-rank")
+                )
         except Exception as e:
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
 

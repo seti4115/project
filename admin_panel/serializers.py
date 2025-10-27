@@ -7,16 +7,20 @@ from user.serializers import UserDetailSerializer
 User = get_user_model()
 
 
-
 class UserEditSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(read_only=True)
+    profile_link = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['phone', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_admin']
+        fields = ['phone', 'username', 'profile_link', 'email', 'first_name', 'last_name', 'is_active', 'is_admin']
+
+    def get_profile_link(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.get_absolute_url())
 
 
 class AllSerializer(serializers.Serializer):
-    users =                         UserDetailSerializer(many=True)
+    users = UserDetailSerializer(many=True)
     consulting_requests = ViewRequestConsultingSerializer(many=True)
     spraying_requests = ViewSprayingRequestSerializer(many=True)

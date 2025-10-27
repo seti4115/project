@@ -3,9 +3,11 @@ from persiantools.jdatetime import JalaliDate, JalaliDateTime
 
 from product.models import Product
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title', 'type', 'price', 'production_date_jalali', 'expiration_date_jalali', 'is_active', 'updated_at_jalali']
+    list_display = ['title', 'type', 'price', 'production_date_jalali', 'expiration_date_jalali', 'is_active',
+                    'updated_at_jalali', 'tag_list']
     prepopulated_fields = {'slug': ('title_en',)}
 
     def production_date_jalali(self, obj):
@@ -19,6 +21,12 @@ class ProductAdmin(admin.ModelAdmin):
     def updated_at_jalali(self, obj):
         jdt = JalaliDateTime.to_jalali(obj.updated_at)
         return jdt.strftime("%H:%M  %Y/%m/%d")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('tags')
+
+    def tag_list(self, obj):
+        return u", ".join(o.name for o in obj.tags.all())
 
     production_date_jalali.short_description = 'تاریخ تولید'
     expiration_date_jalali.short_description = 'تاریخ انقضا'

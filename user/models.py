@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext as _
+from rest_framework.reverse import reverse
 
 from user.validators import phone_validator, persian_validator, english_validator
 
@@ -27,6 +28,9 @@ class UserBase(AbstractUser):
             return f"{self.first_name} {self.last_name}"
         else:
             return self.username
+
+    def get_absolute_url(self):
+        return reverse('user-list-detail', kwargs={'phone': self.phone})
 
     class Meta:
         abstract = True

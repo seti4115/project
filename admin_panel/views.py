@@ -1,7 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db.models import Q
-from persiantools.jdatetime import JalaliDateTime
 from rest_framework import permissions, filters, status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
@@ -125,44 +123,48 @@ class SprayingListAdminPanelView(ListCreateAPIView):
         q = SprayingRequest.objects.all()
         params = self.request.GET
 
-        ids = params.getlist("id") or params.get("id")
-        phones = params.getlist("phone") or params.get("phone")
-        statuses = params.getlist("status") or params.get("status")
+        ids = params.getlist("id")
+
+        phones = params.getlist("phone")
+        statuses = params.getlist("status")
         search = params.get("search")
         date_after = params.get("start_date")
         date_before = params.get("end_date")
 
-        if ids:
-            if isinstance(ids, str):
-                ids = ids.replace(",", " ").split()
-            q = q.filter(id__in=ids)
+        try:
+            if ids:
+                q = q.filter(id__in=ids)
 
-        if phones:
-            if isinstance(phones, str):
-                phones = phones.replace(",", " ").split()
-            q = q.filter(phone__in=phones)
+            if phones:
+                q = q.filter(phone__in=phones)
 
-        if statuses:
-            if isinstance(statuses, str):
-                statuses = statuses.replace(",", " ").split()
-            q = q.filter(status__in=statuses)
+            if statuses:
+                q = q.filter(status__in=statuses)
 
-        if date_after and date_before:
-            q = q.filter(created_at__range=[date_after, date_before])
-        elif date_after:
-            q = q.filter(created_at__gte=date_after)
-        elif date_before:
-            q = q.filter(created_at__lte=date_before)
+            if date_after and date_before:
+                date_after = jalali_to_gregorian(date_after)
+                date_before = jalali_to_gregorian(date_before)
+                q = q.filter(created_at__range=[date_after, date_before])
+            elif date_after:
+                date_after = jalali_to_gregorian(date_after)
+                q = q.filter(created_at__gte=date_after)
+            elif date_before:
+                date_before = jalali_to_gregorian(date_before)
+                q = q.filter(created_at__lte=date_before)
 
-        if search:
-            search_vector = SearchVector("id", "first_name", "last_name", weight="A", config="simple") + SearchVector(
-                "province", "city", "land_product", "message", weight="B", config="simple")
-            search_query = SearchQuery(search, config="simple")
-            q = (
-                q.annotate(rank=SearchRank(search_vector, search_query))
-                .filter(rank__gte=0.1)
-                .order_by("-rank")
-            )
+            if search:
+                q = q.filter(
+                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
+                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
+                # search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
+                # search_query = SearchQuery(search, config="simple")
+                # q = (
+                #     q.annotate(rank=SearchRank(search_vector, search_query))
+                #     .filter(rank__gte=0.1)
+                #     .order_by("-rank")
+                # )
+        except Exception as e:
+            return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
 
         return q
 

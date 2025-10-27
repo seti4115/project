@@ -1,6 +1,9 @@
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from rest_framework.reverse import reverse
 from taggit.managers import TaggableManager
 from translate import Translator
 
@@ -26,8 +29,9 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('قیمت'))
     production_date = models.DateField(verbose_name=_('تاریخ تولید'))
     expiration_date = models.DateField(verbose_name=_('تاریخ انقضا'))
-    tags = TaggableManager(verbose_name=_('تگ ها'))
+    tags = TaggableManager(verbose_name=_('تگ ها'), blank=True)
     is_active = models.BooleanField(default=True, verbose_name=_('فعال بودن'))
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('ویرایش شده در'))
 
     def __str__(self):
@@ -40,6 +44,12 @@ class Product(models.Model):
             self.slug = slugify(self.title_en)
         return super(Product, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('product-detail', kwargs={'slug': self.slug})
+
     class Meta:
         verbose_name = 'محصول'
         verbose_name_plural = 'محصولات'
+        ordering = ['-created_at']
+
+

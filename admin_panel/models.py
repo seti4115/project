@@ -19,5 +19,5 @@ class AdminPanel(models.Model):
         return f"{self.user}"
 
     class Meta:
-        verbose_name_plural = _('admins panel')
-        verbose_name = _('admin panel')
+        verbose_name_plural = _('ادمین های پنل')
+        verbose_name = _('ادمین پنل')

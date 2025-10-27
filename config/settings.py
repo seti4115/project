@@ -21,11 +21,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # internal
     'home.apps.HomeConfig',
+    'product.apps.ProductConfig',
     'user.apps.UserConfig',
     'admin_panel.apps.AdminPanelConfig',
     'request.apps.RequestConfig',
     # external
     'rest_framework',
+    'taggit',
     'corsheaders',
     'drf_yasg',
     'persiantools',

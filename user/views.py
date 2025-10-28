@@ -16,7 +16,6 @@ from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSer
 User = get_user_model()
 
 
-
 class LoginAPIView(APIView):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -61,6 +60,7 @@ class RegisterAPIView(APIView):
             user.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserProfileAPIView(RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
@@ -135,5 +135,5 @@ class LogoutAPIView(APIView):
         user = request.user
         if user.is_authenticated:
             logout(request)
-            return Response({"logout":"success"}, status=status.HTTP_200_OK)
+            return Response({"logout": "success"}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)

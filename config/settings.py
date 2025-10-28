@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from environs import env
@@ -161,3 +162,8 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_ROOT = BASE_DIR / 'media/'
 MEDIA_URL = '/media/'
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+}

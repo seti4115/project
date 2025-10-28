@@ -21,3 +21,11 @@ class IsSuperAdminPanelPermission(BasePermission):
             return request.user.adminpanel.access == Access.superuser
         except AdminPanel.DoesNotExist:
             return False
+
+class EditPermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_authenticated:
+            if request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
+                return True
+            return False
+        return False

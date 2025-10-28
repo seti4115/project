@@ -10,6 +10,12 @@ from product.serializers import ProductAllFieldSerializer, ProductShowSerializer
 
 class ProductListCreateView(ListCreateAPIView):
 
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ProductShowSerializer
+        else:
+            return ProductAllFieldSerializer
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return [permissions.AllowAny(), ]
@@ -21,24 +27,21 @@ class ProductListCreateView(ListCreateAPIView):
         params = self.request.GET
         search = params.get('search')
         tags = params.getlist('tags')
-        if search:
-            search_vector = SearchVector('title', weight='A') + SearchVector('tags', weight='B') + SearchVector(
-                'description', weight='C')
-            search_query = SearchQuery(search)
-            q = (
-                q.annotate(rank=SearchRank(search_vector, search_query))
-                .filter(rank__gte=0.1)
-                .order_by("-rank")
-            )
-        if tags:
-            q = q.filter(tags__name__in=tags).distinct()
-        return q
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return ProductAllFieldSerializer
-        else:
-            return ProductShowSerializer
+        try:
+            if search:
+                search_vector = SearchVector('title', weight='A') + SearchVector('tags', weight='B') + SearchVector(
+                    'description', weight='C')
+                search_query = SearchQuery(search)
+                q = (
+                    q.annotate(rank=SearchRank(search_vector, search_query))
+                    .filter(rank__gte=0.1)
+                    .order_by("-rank")
+                )
+            if tags:
+                q = q.filter(tags__name__in=tags).distinct()
+            return q
+        except Exception as e:
+            return Product.objects.none()
 
 
 class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
@@ -48,9 +51,9 @@ class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return ProductAllFieldSerializer
-        else:
             return ProductShowSerializer
+        else:
+            return ProductAllFieldSerializer
 
     def get_permissions(self):
         if self.request.method == 'GET':

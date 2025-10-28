@@ -6,7 +6,12 @@ from product.models import Product
 
 
 class ProductAllFieldSerializer(TaggitSerializer, ModelSerializer):
+    link = serializers.SerializerMethodField()
     tags = TagListSerializerField()
+
+    def get_link(self, obj):
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.get_absolute_url())
 
     class Meta:
         model = Product

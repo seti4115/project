@@ -60,13 +60,12 @@ class RequestConsultingAdminPanelSerializer(serializers.ModelSerializer):
         return jdt.strftime("%Y/%m/%d %H:%M:%S")
 
 
-
 class SprayingRequestSerializer(serializers.ModelSerializer):
     message = serializers.CharField(required=False, allow_blank=True, default="")
 
     class Meta:
         model = SprayingRequest
-        fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address',
+        fields = ['id', 'first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address',
                   'message']
 
 
@@ -76,7 +75,7 @@ class ViewSprayingRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SprayingRequest
-        fields = ["type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
+        fields = ['id', "type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
                   "status", "land_area", "address", "message", "user"]
 
     def get_status_display(self, obj):

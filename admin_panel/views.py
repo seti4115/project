@@ -65,7 +65,7 @@ class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
             return [permissions.IsAuthenticated, IsSuperAdminPanelPermission]
 
 
-class ConsultingListAdminPanelView(ListCreateAPIView):
+class ConsultingListAdminPanelView(ListAPIView):
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["id", "phone", "status", "created_at"]
     serializer_class = RequestConsultingAdminPanelSerializer
@@ -129,7 +129,7 @@ class RetrieveUpdateDestroyConsultingAdminPanel(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission, IsSuperAdminPanelPermission]
 
 
-class SprayingListAdminPanelView(ListCreateAPIView):
+class SprayingListAdminPanelView(ListAPIView):
     serializer_class = SprayingRequestAdminPanelSerializer
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["id", "phone", "status", "created_at"]

@@ -34,6 +34,7 @@ class UserBase(AbstractUser):
 
     class Meta:
         abstract = True
+        unique_together = ('phone', 'activation_code')
 
 
 class User(UserBase):

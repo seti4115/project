@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'request.apps.RequestConfig',
     # external
     'rest_framework',
+    'rest_framework_simplejwt',
     'taggit',
     'corsheaders',
     'drf_yasg',
@@ -105,9 +106,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
 
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'user.authentications.CsrfExemptSessionAuthentication',
-    ],
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'user.authentications.CsrfExemptSessionAuthentication',
+    # ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_THROTTLE_CLASSES': [
@@ -115,6 +116,10 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {'anon': '100/day', 'user': '1000/day', 'custom': '2/day'},
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 AUTH_USER_MODEL = 'user.User'

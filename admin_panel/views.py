@@ -62,7 +62,6 @@ class ConsultingListAdminPanelView(ListCreateAPIView):
         params = self.request.GET
 
         ids = params.getlist("id")
-
         phones = params.getlist("phone")
         statuses = params.getlist("status")
         search = params.get("search")
@@ -92,7 +91,7 @@ class ConsultingListAdminPanelView(ListCreateAPIView):
 
             if search:
                 # q = q.filter(
-                #     Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
+                #     Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(
                 #         province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
                 search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
                 search_query = SearchQuery(search, config="simple")

@@ -9,7 +9,7 @@ User = get_user_model()
 
 class UserEditSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(read_only=True)
-    profile_link = serializers.SerializerMethodField()
+    profile_link = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User

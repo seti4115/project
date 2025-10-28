@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import permissions, filters, status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 
 from admin_panel.serializers import UserEditSerializer
 from request.models import ConsultingRequest, SprayingRequest
@@ -20,6 +19,9 @@ class AdminPanelAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
 
     def get(self, request, *args, **kwargs):
+        users_count = User.objects.count()
+        consulting_count = ConsultingRequest.objects.count()
+        spraying_count = SprayingRequest.objects.count()
         # users = User.objects.all()
         # consulting_requests = ConsultingRequest.objects.all().order_by("-created_at")
         # spraying_requests = SprayingRequest.objects.all().order_by("-created_at")
@@ -30,24 +32,37 @@ class AdminPanelAPIView(APIView):
         #         "spraying_requests": ViewSprayingRequestSerializer(spraying_requests, many=True).data,
         #     }
         # )
-        return Response({}, status=status.HTTP_200_OK)
+        return Response({
+            'users_count': users_count,
+            'consulting_count': consulting_count,
+            'spraying_count': spraying_count,
+        }, status=status.HTTP_200_OK)
 
 
-class UserListAdminPanel(ModelViewSet):
+class UserListAdminPanel(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserEditSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['username', 'phone', 'id', 'email', 'last_name']
     ordering_fields = ['phone', 'last_name', 'date_joined', 'last_login']
-    lookup_field = "phone"
-    lookup_url_kwarg = "phone"
+    permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
+
+    def list(self, request, *args, **kwargs):
+        params = self.request.GET
+        pass
+
+
+class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserEditSerializer
+    lookup_url_kwarg = 'phone'
+    lookup_field = 'phone'
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [IsAdminPanelPermission(), ]
-        elif self.action in ['destroy', 'update', 'partial_update']:
-            return [IsSuperAdminPanelPermission(), ]
-        return super().get_permissions()
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.IsAuthenticated, IsAdminPanelPermission]
+        else:
+            return [permissions.IsAuthenticated, IsSuperAdminPanelPermission]
 
 
 class ConsultingListAdminPanelView(ListCreateAPIView):
@@ -91,8 +106,9 @@ class ConsultingListAdminPanelView(ListCreateAPIView):
 
             if search:
                 q = q.filter(
-                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
-                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
+                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(
+                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search) | Q(
+                        message__icontains=search))
                 # search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
                 # search_query = SearchQuery(search, config="simple")
                 # q = (
@@ -154,8 +170,9 @@ class SprayingListAdminPanelView(ListCreateAPIView):
 
             if search:
                 q = q.filter(
-                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(phone__icontains=search) | Q(
-                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search))
+                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(
+                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search) | Q(
+                        message__icontains=search) | Q(address__icontains=search))
                 # search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
                 # search_query = SearchQuery(search, config="simple")
                 # q = (
@@ -165,7 +182,6 @@ class SprayingListAdminPanelView(ListCreateAPIView):
                 # )
         except Exception as e:
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
-
         return q
 
 

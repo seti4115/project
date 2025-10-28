@@ -48,15 +48,13 @@ class RegisterSerializer(Serializer):
         if data:
             user = User.objects.filter(phone=data)
             if user.exists():
-                raise serializers.ValidationError(_('این شماره تلفن قبلا ثبت شده است!'))
+                raise serializers.ValidationError({"email": "این ایمیل قبلاً ثبت شده است."})
         return data
 
-    def validate_username(self, data):
-        if data:
-            user = User.objects.filter(username=data)
-            if user.exists():
-                raise serializers.ValidationError(_('این نام کاربری قبلا ثبت شده است!'))
-        return data
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise ValidationError({"username": "این نام کاربری قبلاً ثبت شده است."})
+        return value
 
     def validate(self, data):
 
@@ -64,7 +62,7 @@ class RegisterSerializer(Serializer):
         confirm_password = data.get('confirm_password')
 
         if password != confirm_password:
-            raise ValidationError(_("رمز عبور و تکرار رمز عبور مطابقت ندارد!"))
+            raise ValidationError({'password': _("رمز عبور و تکرار رمز عبور مطابقت ندارد!")})
 
         return data
 

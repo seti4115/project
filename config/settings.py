@@ -106,6 +106,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'user.authentications.CsrfExemptSessionAuthentication',
     ],
+'DEFAULT_THROTTLE_CLASSES': [
+        'user.throttles.DailyPostThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {'daily_post': '5/day'},
 }
 
 AUTH_USER_MODEL = 'user.User'

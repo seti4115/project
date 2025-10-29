@@ -47,10 +47,6 @@ class UserListAdminPanel(ListAPIView):
     ordering_fields = ['phone', 'last_name', 'date_joined', 'last_login']
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
 
-    def list(self, request, *args, **kwargs):
-        params = self.request.GET
-        pass
-
 
 class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()

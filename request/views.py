@@ -33,6 +33,12 @@ class UserRequestConsultingAPIView(APIView):
         serializer = ViewRequestConsultingSerializer(requests, many=True)
         return Response(serializer.data)
 
+    # def get_throttles(self):
+    #     if self.request.method == 'POST':
+    #         return [DailyPostThrottle,]
+    #     else:
+    #         return super().get_throttles()
+
 
 class UserRequestSprayingAPIView(APIView):
     throttle_classes = [DailyPostThrottle]

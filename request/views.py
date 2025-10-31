@@ -6,9 +6,11 @@ from rest_framework.views import APIView
 from request.models import Type, ConsultingRequest, SprayingRequest
 from request.serializers import UserRequestConsultingSerializer, ViewRequestConsultingSerializer, \
     SprayingRequestSerializer, ViewSprayingRequestSerializer
+from user.throttles import DailyPostThrottle
 
 
 class UserRequestConsultingAPIView(APIView):
+    throttle_classes = [DailyPostThrottle,]
     def post(self, request: Request, *args, **kwargs):
         serializer = UserRequestConsultingSerializer(data=request.data)
         if serializer.is_valid():
@@ -33,7 +35,7 @@ class UserRequestConsultingAPIView(APIView):
 
 
 class UserRequestSprayingAPIView(APIView):
-
+    throttle_classes = [DailyPostThrottle,]
     def post(self, request: Request, *args, **kwargs):
         serializer = SprayingRequestSerializer(data=request.data)
         if serializer.is_valid():

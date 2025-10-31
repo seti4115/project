@@ -21,17 +21,14 @@ class AdminPanelAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
 
     def get(self, request, *args, **kwargs):
-        # users = User.objects.all()
-        # consulting_requests = ConsultingRequest.objects.all().order_by("-created_at")
-        # spraying_requests = SprayingRequest.objects.all().order_by("-created_at")
-        # serializer = AllSerializer(
-        #     {
-        #         "users": UserDetailSerializer(users, many=True).data,
-        #         "consulting_requests": ViewRequestConsultingSerializer(consulting_requests, many=True).data,
-        #         "spraying_requests": ViewSprayingRequestSerializer(spraying_requests, many=True).data,
-        #     }
-        # )
-        return Response({}, status=status.HTTP_200_OK)
+        user_count = User.objects.count()
+        spraying_count = SprayingRequest.objects.count()
+        consulting_count = ConsultingRequest.objects.count()
+        return Response({
+            'user_count': user_count,
+            'spraying_count': spraying_count,
+            'consulting_count': consulting_count,
+        }, status=status.HTTP_200_OK)
 
 
 class UserListAdminPanel(ModelViewSet):
@@ -49,6 +46,9 @@ class UserListAdminPanel(ModelViewSet):
         elif self.action in ['destroy', 'update', 'partial_update']:
             return [IsSuperAdminPanelPermission(), ]
         return super().get_permissions()
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 class ConsultingListAdminPanelView(ListCreateAPIView):

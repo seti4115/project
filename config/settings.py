@@ -114,7 +114,7 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
     ],
-    'DEFAULT_THROTTLE_RATES': {'anon': '500/week', 'user': '1000/week', 'daily_post': '5/day'},
+    'DEFAULT_THROTTLE_RATES': {'anon': '50/d', 'user': '100/d', 'daily_post': '5/day'},
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'user.authentications.CsrfExemptSessionAuthentication',
@@ -175,14 +175,30 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = "Asia/Tehran"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_RESULT_BACKEND = 'django-db'
 # pick which cache from the CACHES setting.
 CELERY_CACHE_BACKEND = 'default'
 CELERY_RESULT_EXTENDED = True
 # django setting.
 CACHES = {
     'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    },
+    'db_cache': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'my_cache_table',
     }
 }
+BROKER_URL = "redis://127.0.0.1:6379/0"
+
+CELERY_DB_BROKER_URL = BROKER_URL
+# for database
+CELERY_DB_RESULT_BACKEND = "django-db"
+
+CELERY_CACHE_BROKER_URL = BROKER_URL
+# for cache
+CELERY_CACHE_RESULT_BACKEND = "django-cache"
+CELERY_CACHE_CACHE_BACKEND = "default"

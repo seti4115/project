@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from config import settings
 from user.authentications import authenticate, CsrfExemptSessionAuthentication
 from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer, ForgotPasswordSerializer
+from user.tasks import send_email
 
 User = get_user_model()
 
@@ -58,6 +59,7 @@ class RegisterAPIView(APIView):
             )
             user.set_password(password)
             user.save()
+            send_email.delay('زراعتی نو با زراعتینو',f'سلام  {first_name} عزیز! از اینکه زراعتینو رو انتخاب کردید از شما سپاسگذاریم!' , email)
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

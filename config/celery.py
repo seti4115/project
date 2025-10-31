@@ -2,16 +2,14 @@ import os
 
 from celery import Celery
 
-# Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('config')
+celery_db = Celery("db_tasks")
+celery_db.config_from_object("django.conf:settings", namespace="CELERY_DB")
 
-# Using a string here means the worker doesn't have to serialize
-# the configuration object to child processes.
-# - namespace='CELERY' means all celery-related configuration keys
-#   should have a `CELERY_` prefix.
-app.config_from_object('django.conf:settings', namespace='CELERY')
+celery_cache = Celery("cache_tasks")
+celery_cache.config_from_object("django.conf:settings", namespace="CELERY_CACHE")
 
-# Load task modules from all registered Django apps.
-app.autodiscover_tasks()
+# autodiscover
+celery_db.autodiscover_tasks(["tasks"])
+celery_cache.autodiscover_tasks(["tasks"])

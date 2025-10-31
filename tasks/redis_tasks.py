@@ -1,8 +1,7 @@
-from config.celery import celery_db, celery_cache
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from rest_framework.generics import get_object_or_404
 
+from config.celery import celery_cache
 from config.settings import EMAIL_HOST_USER
 
 User = get_user_model()

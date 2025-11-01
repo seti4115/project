@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'drf_yasg',
     'persiantools',
+    'webpush',
 ]
 
 MIDDLEWARE = [
@@ -202,3 +203,14 @@ CELERY_CACHE_BROKER_URL = BROKER_URL
 # for cache
 CELERY_CACHE_RESULT_BACKEND = "django-cache"
 CELERY_CACHE_CACHE_BACKEND = "default"
+
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": "BIsMeWIG5RoGCyqIH-ThyVn6NGlicZqiB0fmcuhqPOzBZWWu5OCjYCVX6qqiEAuhZFUDwDszRjvj9jX-HmkvH-M",
+    "VAPID_PRIVATE_KEY":"0skZydInrX30tgkbV_h14Y_20hNGWSQM0P1AGOPhjlc",
+    "VAPID_ADMIN_EMAIL": "1919setareh1919@gmail.com"
+}
+# {
+# "subject": "mailto: <1919setareh1919@gmail.com>",
+# "publicKey": "BIsMeWIG5RoGCyqIH-ThyVn6NGlicZqiB0fmcuhqPOzBZWWu5OCjYCVX6qqiEAuhZFUDwDszRjvj9jX-HmkvH-M",
+# "privateKey": "0skZydInrX30tgkbV_h14Y_20hNGWSQM0P1AGOPhjlc"
+# }

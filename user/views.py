@@ -139,3 +139,8 @@ class LogoutAPIView(APIView):
             logout(request)
             return Response({"logout": "success"}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class AcivateAccountAPIView(APIView):
+    pass
+    # todo

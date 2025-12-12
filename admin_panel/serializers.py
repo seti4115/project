@@ -9,11 +9,11 @@ User = get_user_model()
 
 class UserEditSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(read_only=True)
-    profile_link = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['phone', 'username', 'profile_link', 'email', 'first_name', 'last_name', 'is_active', 'is_admin']
+        fields = ['id', 'phone', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_admin']
+        read_only_fields = ['id']
 
     def get_profile_link(self, obj):
         request = self.context.get('request')

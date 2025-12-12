@@ -51,8 +51,6 @@ class UserListAdminPanel(ListAPIView):
 class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserEditSerializer
-    lookup_url_kwarg = 'phone'
-    lookup_field = 'phone'
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -182,9 +180,10 @@ class SprayingListAdminPanelView(ListAPIView):
 
 
 class RetrieveUpdateDestroySprayingAdminPanel(RetrieveUpdateDestroyAPIView):
-    queryset = ConsultingRequest.objects.all()
-    model = ConsultingRequest
+    queryset = SprayingRequest.objects.all()
+    model = SprayingRequest
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission, IsSuperAdminPanelPermission]
+    serializer_class = SprayingRequestAdminPanelSerializer
 
 
 class IsAdminPanel(APIView):

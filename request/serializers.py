@@ -24,13 +24,14 @@ class UserRequestConsultingSerializer(serializers.ModelSerializer):
 
 
 class ViewRequestConsultingSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='get_status_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
     user = UserDetailSerializer(read_only=True)
 
     class Meta:
         model = ConsultingRequest
         fields = ["id", "type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
-                  "status", "message", "user"]
+                  "status", "message", "user", 'status_display']
+        read_only_fields = ['id']
 
     def get_status_display(self, obj):
         return obj.get_status_display()
@@ -63,34 +64,41 @@ class RequestConsultingAdminPanelSerializer(serializers.ModelSerializer):
 
 class SprayingRequestSerializer(serializers.ModelSerializer):
     message = serializers.CharField(required=False, allow_blank=True, default="")
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = SprayingRequest
         fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address',
-                  'message']
+                  'message', 'status', 'status_display']
+
+    def get_status_display(self, obj):
+        return obj.get_status_display()
 
 
 class ViewSprayingRequestSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='get_status_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
     user = UserDetailSerializer(read_only=True)
 
     class Meta:
         model = SprayingRequest
-        fields = ["type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
-                  "status", "land_area", "address", "message", "user"]
+        fields = ["id", "type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
+                  "status", "land_area", "address", "message", "user", "status_display"]
+        read_only_fields = ["id"]
+
 
     def get_status_display(self, obj):
         return obj.get_status_display()
 
 
 class SprayingRequestAdminPanelSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='get_status_display')
+    status = serializers.ChoiceField(choices=Status.choices)
+    status_display = serializers.CharField(source='get_status_display')
     user = UserDetailSerializer(read_only=True)
 
     class Meta:
         model = SprayingRequest
         fields = ["id", "type", "first_name", "last_name", "phone", "province", "city", "land_product", "created_at",
-                  "status", "land_area", "address", "message", "user"]
+                  "status", "status_display", "land_area", "address", "message", "user"]
         read_only_fields = ["id"]
 
     def get_status_display(self, obj):

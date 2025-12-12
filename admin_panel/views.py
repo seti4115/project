@@ -37,8 +37,6 @@ class UserListAdminPanel(ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['username', 'phone', 'id', 'email', 'last_name']
     ordering_fields = ['phone', 'last_name', 'date_joined', 'last_login']
-    lookup_field = "phone"
-    lookup_url_kwarg = "phone"
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -46,6 +44,7 @@ class UserListAdminPanel(ModelViewSet):
         elif self.action in ['destroy', 'update', 'partial_update']:
             return [IsSuperAdminPanelPermission(), ]
         return super().get_permissions()
+
 
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -170,9 +169,10 @@ class SprayingListAdminPanelView(ListCreateAPIView):
 
 
 class RetrieveUpdateDestroySprayingAdminPanel(RetrieveUpdateDestroyAPIView):
-    queryset = ConsultingRequest.objects.all()
-    model = ConsultingRequest
+    queryset = SprayingRequest.objects.all()
+    model = SprayingRequest
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission, IsSuperAdminPanelPermission]
+    serializer_class = SprayingRequestAdminPanelSerializer
 
 
 class IsAdminPanel(APIView):

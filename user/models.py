@@ -30,7 +30,7 @@ class UserBase(AbstractUser):
             return self.username
 
     def get_absolute_url(self):
-        return reverse('user-list-detail', kwargs={'phone': self.phone})
+        return reverse('user-list-detail', kwargs={'pk': self.pk})
 
     class Meta:
         abstract = True

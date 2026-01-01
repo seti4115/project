@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from admin_panel.serializers import UserEditSerializer
 from request.models import ConsultingRequest, SprayingRequest
 from request.serializers import RequestConsultingAdminPanelSerializer, SprayingRequestAdminPanelSerializer
-from utils.methods import jalali_to_gregorian
+from utils.methods import filter_queryset, jalali_to_gregorian
 from .models import AdminPanel
 from .permissions import IsAdminPanelPermission, IsSuperAdminPanelPermission
 
@@ -69,24 +69,11 @@ class ConsultingListAdminPanelView(ListAPIView):
         q = ConsultingRequest.objects.all()
         params = self.request.GET
 
-        ids = params.getlist("id")
-
-        phones = params.getlist("phone")
-        statuses = params.getlist("status")
         search = params.get("search")
         date_after = params.get("start_date")
         date_before = params.get("end_date")
-
+        q = filter_queryset(params, ["id", "status", "phone"], q)
         try:
-            if ids:
-                q = q.filter(id__in=ids)
-
-            if phones:
-                q = q.filter(phone__in=phones)
-
-            if statuses:
-                q = q.filter(status__in=statuses)
-
             if date_after and date_before:
                 date_after = jalali_to_gregorian(date_after)
                 date_before = jalali_to_gregorian(date_before)
@@ -132,25 +119,11 @@ class SprayingListAdminPanelView(ListAPIView):
     def get_queryset(self):
         q = SprayingRequest.objects.all()
         params = self.request.GET
-
-        ids = params.getlist("id")
-
-        phones = params.getlist("phone")
-        statuses = params.getlist("status")
         search = params.get("search")
         date_after = params.get("start_date")
         date_before = params.get("end_date")
-
+        q = filter_queryset(params, ["id", "status", "phone"], q)
         try:
-            if ids:
-                q = q.filter(id__in=ids)
-
-            if phones:
-                q = q.filter(phone__in=phones)
-
-            if statuses:
-                q = q.filter(status__in=statuses)
-
             if date_after and date_before:
                 date_after = jalali_to_gregorian(date_after)
                 date_before = jalali_to_gregorian(date_before)

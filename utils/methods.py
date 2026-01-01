@@ -13,3 +13,19 @@ def jalali_to_gregorian(date_str):
     y, m, d = map(int, date_str.replace("/", "-").split("-"))
     jdate = JalaliDate(y, m, d)
     return jdate.to_gregorian()
+
+
+def filter_queryset(params, filters: list, query):
+    filter_kwargs = {}
+    print(params)
+
+    for field in filters:
+        values = params.getlist(field)
+
+        if values:
+            filter_kwargs[f"{field}__in"] = values
+
+    if filter_kwargs:
+        query = query.filter(**filter_kwargs)
+
+    return query

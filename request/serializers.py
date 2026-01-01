@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from persiantools.jdatetime import JalaliDateTime
 from rest_framework import serializers
 
@@ -11,9 +12,20 @@ class UserRequestConsultingSerializer(serializers.ModelSerializer):
         model = ConsultingRequest
         fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'message']
 
-    def validate_phone(self, value):
-        phone_validator(value)
-        return value
+    def validate_phone(self, phone):
+        today = now().date()
+        phone_validator(phone)
+        count = ConsultingRequest.objects.filter(
+            phone=phone,
+            created_at__date=today
+        ).count()
+
+        if count >= 5:
+            raise serializers.ValidationError(
+                'شما امروز بیش از ۵ درخواست مشاوره ثبت کرده‌اید.'
+            )
+
+        return phone
 
     def validate(self, data):
         first_name = data['first_name']
@@ -76,6 +88,28 @@ class SprayingRequestSerializer(serializers.ModelSerializer):
         model = SprayingRequest
         fields = ['first_name', 'last_name', 'phone', 'province', 'city', 'land_product', 'land_area', 'address',
                   'message']
+
+    def validate_phone(self, phone):
+        today = now().date()
+        phone_validator(phone)
+        count = SprayingRequest.objects.filter(
+            phone=phone,
+            created_at__date=today
+        ).count()
+
+        if count >= 5:
+            raise serializers.ValidationError(
+                'شما امروز بیش از ۵ درخواست سم‌پاشی ثبت کرده‌اید.'
+            )
+
+        return phone
+
+    def validate(self, data):
+        first_name = data['first_name']
+        last_name = data['last_name']
+        persian_validator(first_name)
+        persian_validator(last_name)
+        return data
 
 
 class ViewSprayingRequestSerializer(serializers.ModelSerializer):

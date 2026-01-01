@@ -40,7 +40,7 @@ class User(UserBase):
     class Meta:
         verbose_name = _('کاربر')
         verbose_name_plural = _('کاربران')
-        ordering = ['-phone', '-date_joined']
+        ordering = ['-date_joined']
         indexes = [
             models.Index(fields=['phone'], condition=Q(is_active=True), name='phone'),
             models.Index(fields=['username'], condition=Q(is_active=True), name='username'),

@@ -66,7 +66,6 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     authentication_classes = [CsrfExemptSessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request, *args, **kwargs):
         user = request.user
         serializer = ProfileSerializer(user)

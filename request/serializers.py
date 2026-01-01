@@ -25,7 +25,7 @@ class UserRequestConsultingSerializer(serializers.ModelSerializer):
 
 class ViewRequestConsultingSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
-    created_at = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField(source="get_created_at",read_only=True)
     user = UserDetailSerializer(read_only=True)
 
     class Meta:
@@ -47,7 +47,7 @@ class ViewRequestConsultingSerializer(serializers.ModelSerializer):
 
 class RequestConsultingAdminPanelSerializer(serializers.ModelSerializer):
     status = serializers.ChoiceField(choices=Status.choices)
-    created_at = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField(source="get_created_at",read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
@@ -80,7 +80,7 @@ class SprayingRequestSerializer(serializers.ModelSerializer):
 
 class ViewSprayingRequestSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
-    created_at = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField(source="get_created_at",read_only=True)
     user = UserDetailSerializer(read_only=True)
 
     class Meta:
@@ -102,7 +102,7 @@ class ViewSprayingRequestSerializer(serializers.ModelSerializer):
 
 class SprayingRequestAdminPanelSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
-    created_at = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField(source="get_created_at",read_only=True)
     user = UserDetailSerializer(read_only=True)
 
     class Meta:

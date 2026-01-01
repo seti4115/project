@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.utils.translation import gettext_lazy as _
+from persiantools.jdatetime import JalaliDateTime
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import Serializer
@@ -74,13 +75,19 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(allow_blank=True)
     username = serializers.CharField(allow_blank=True)
     email = serializers.EmailField(allow_blank=True)
-    date_joined = serializers.DateTimeField(read_only=True)
+    date_joined = serializers.SerializerMethodField(source="get_date_joined", read_only=True)
 
     class Meta:
         model = User
         fields = [
-            'first_name', 'last_name', 'username', 'phone', 'email', 'date_joined'
+            'id', 'first_name', 'last_name', 'username', 'phone', 'email', 'date_joined'
         ]
+
+    def get_date_joined(self, obj):
+        if not obj.date_joined:
+            return None
+        jdt = JalaliDateTime.to_jalali(obj.date_joined)
+        return jdt.strftime("%Y/%m/%d %H:%M:%S")
 
 
 class ForgotPasswordSerializer(serializers.Serializer):

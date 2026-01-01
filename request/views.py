@@ -29,7 +29,6 @@ class UserRequestConsultingAPIView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         requests = ConsultingRequest.objects.filter(phone=request.user.phone, type=Type.CONSULTING)
         requests = filter_queryset(request.query_params, ["id", "status"], requests)
-        search = request.query_params.get("search")
         order = request.query_params.get("ordering")
         date_after = request.query_params.get("start_date")
         date_before = request.query_params.get("end_date")
@@ -50,11 +49,6 @@ class UserRequestConsultingAPIView(APIView):
                 date_before = jalali_to_gregorian(date_before)
                 requests = requests.filter(created_at__lte=date_before)
 
-            if search:
-                requests = requests.filter(
-                     Q(
-                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search) | Q(
-                        message__icontains=search))
         except Exception as e:
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ViewRequestConsultingSerializer(requests, many=True)
@@ -86,7 +80,6 @@ class UserRequestSprayingAPIView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         requests = SprayingRequest.objects.filter(phone=request.user.phone, type=Type.SPRAYING)
         requests = filter_queryset(request.query_params, ["id", "status"], requests)
-        search = request.query_params.get("search")
         order = request.query_params.get("ordering")
         date_after = request.query_params.get("start_date")
         date_before = request.query_params.get("end_date")
@@ -107,10 +100,6 @@ class UserRequestSprayingAPIView(APIView):
                 date_before = jalali_to_gregorian(date_before)
                 requests = requests.filter(created_at__lte=date_before)
 
-            if search:
-                requests = requests.filter(
-                    Q(province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search) |
-                    Q(message__icontains=search) | Q(address__icontains=search))
         except Exception as e:
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ViewSprayingRequestSerializer(requests, many=True)

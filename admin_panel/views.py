@@ -54,9 +54,9 @@ class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
-            return [permissions.IsAuthenticated, IsAdminPanelPermission]
+            return [permissions.IsAuthenticated(), IsAdminPanelPermission()]
         else:
-            return [permissions.IsAuthenticated, IsSuperAdminPanelPermission]
+            return [permissions.IsAuthenticated(), IsSuperAdminPanelPermission()]
 
 
 class ConsultingListAdminPanelView(ListAPIView):

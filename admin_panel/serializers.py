@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from request.serializers import ViewRequestConsultingSerializer, ViewSprayingRequestSerializer
 from user.serializers import UserDetailSerializer
+from user.validators import english_validator
 
 User = get_user_model()
 
@@ -11,11 +12,23 @@ User = get_user_model()
 class UserEditSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(read_only=True)
     date_joined = serializers.SerializerMethodField(source="get_date_joined",read_only=True)
+    new_password = serializers.CharField(allow_blank=True,write_only=True, allow_null=True, required=False, label="پسورد جدید", validators=[english_validator])
+    old_password = serializers.CharField(allow_blank=True,write_only=True, allow_null=True, required=False, label="تکرار پسورد جدید", validators=[english_validator])
 
     class Meta:
         model = User
-        fields = ['id', 'phone', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_admin', 'date_joined']
+        fields = ['id', 'phone', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_admin', 'date_joined', 'new_password', 'old_password']
         read_only_fields = ['id']
+
+    def validate(self, attrs):
+        if len(attrs["new_password"])>=6 and attrs["new_password"] == attrs["old_password"]:
+            user = User.objects.get(username=attrs['username'])
+            user.set_password(attrs['new_password'])
+            user.save()
+        else:
+            raise serializers.ValidationError("لطفا پسورد معتبر وارد کنید.")
+        return attrs
+
 
     def get_date_joined(self, obj):
         if not obj.date_joined:

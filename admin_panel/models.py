@@ -13,8 +13,21 @@ class Access(models.TextChoices):
 
 class AdminPanel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('user'))
+
     access = models.CharField(choices=Access.choices, default=Access.admin, max_length=15, verbose_name=_('access'))
 
+
+    def delete(self, **kwargs):
+        self.user.is_admin = False
+        self.user.save()
+        return super().delete(**kwargs)
+    
+    def save(self, **kwargs):
+        self.user.is_admin = True
+        self.user.save()
+        return super().save(**kwargs)
+        
+    
     def __str__(self):
         return f"{self.user}"
 

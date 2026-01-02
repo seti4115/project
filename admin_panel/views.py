@@ -47,6 +47,25 @@ class UserListAdminPanel(ListAPIView):
     ordering_fields = ['phone', 'last_name', 'date_joined', 'last_login']
     permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
 
+    def get_queryset(self):
+        queryset = self.queryset
+        params = self.request.GET
+        queryset = filter_queryset(params, ["id", "phone", "is_active", "is_admin"], queryset)
+        date_after = params.get("start_date")
+        date_before = params.get("end_date")
+        if date_after and date_before:
+            date_after = jalali_to_gregorian(date_after)
+            date_before = jalali_to_gregorian(date_before)
+            queryset = queryset.filter(date_joined__range=[date_after, date_before])
+        elif date_after:
+            date_after = jalali_to_gregorian(date_after)
+            queryset = queryset.filter(date_joined__gte=date_after)
+        elif date_before:
+            date_before = jalali_to_gregorian(date_before)
+            queryset = queryset.filter(date_joined__lte=date_before)
+        return queryset.all()
+
+
 
 class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()

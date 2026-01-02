@@ -106,7 +106,7 @@ class UserRequestSprayingAPIView(APIView):
 class UserRequestPanelAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def get(self, request: Request, *args, **kwargs):
-        count_c = ConsultingRequest.objects.filter(user__pk=request.user.pk).count()
-        count_s = SprayingRequest.objects.filter(user__pk=request.user.pk).count()
+        count_c = ConsultingRequest.objects.filter(phone=request.user.phone).count()
+        count_s = SprayingRequest.objects.filter(phone=request.user.phone).count()
         # todo: تعداد خریدهاش
         return Response({"consulting_count": count_c, "spraying_count": count_s}, status=status.HTTP_200_OK)

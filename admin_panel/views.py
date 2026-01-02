@@ -50,7 +50,7 @@ class UserListAdminPanel(ListAPIView):
     def get_queryset(self):
         queryset = self.queryset
         params = self.request.GET
-        queryset = filter_queryset(params, ["id", "phone", "is_active", "is_admin"], queryset)
+        queryset = filter_queryset(params, ["id", "phone", "is_active", "is_admin", "username"], queryset)
         date_after = params.get("start_date")
         date_before = params.get("end_date")
         if date_after and date_before:

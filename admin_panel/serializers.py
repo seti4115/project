@@ -21,10 +21,11 @@ class UserEditSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def validate(self, attrs):
-        if len(attrs["new_password"])>=6 and attrs["new_password"] == attrs["old_password"]:
-            user = User.objects.get(username=attrs['username'])
-            user.set_password(attrs['new_password'])
-            user.save()
+        if attrs["new_password"] == attrs["old_password"]:
+            if len(attrs["new_password"]) >= 6:
+                user = User.objects.get(username=attrs['username'])
+                user.set_password(attrs['new_password'])
+                user.save()
         else:
             raise serializers.ValidationError("لطفا پسورد معتبر وارد کنید.")
         return attrs

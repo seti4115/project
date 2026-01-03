@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from persiantools.jdatetime import JalaliDateTime
 from rest_framework import serializers
 
+from admin_panel.models import AdminPanel
 from request.serializers import ViewRequestConsultingSerializer, ViewSprayingRequestSerializer
 from user.serializers import UserDetailSerializer
 from user.validators import english_validator
@@ -51,3 +52,22 @@ class AllSerializer(serializers.Serializer):
     users = UserDetailSerializer(many=True)
     consulting_requests = ViewRequestConsultingSerializer(many=True)
     spraying_requests = ViewSprayingRequestSerializer(many=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'phone', 'first_name', 'last_name', 'is_active', 'is_admin',]
+
+
+class AdminPanelSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='user',
+        write_only=True
+    )
+
+    class Meta:
+        model = AdminPanel
+        fields = ['user', 'user_id', 'access']

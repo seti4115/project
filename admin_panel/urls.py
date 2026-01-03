@@ -6,6 +6,7 @@ from admin_panel import views
 
 urlpatterns = [
     path('', views.AdminPanelAPIView.as_view(), name='admin-panel'),
+    path('create/', views.ListCreateAdminPanelAPIView.as_view(), name='admin-panel-create'),
     path('consulting/', views.ConsultingListAdminPanelView.as_view(), name='consulting-list-create'),
     path('spraying/', views.SprayingListAdminPanelView.as_view(), name='spraying-list-create'),
     path('consulting/<int:pk>/', views.RetrieveUpdateDestroyConsultingAdminPanel.as_view(), name='consulting-detail-update-destroy'),

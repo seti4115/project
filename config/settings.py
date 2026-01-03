@@ -115,7 +115,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
     ],
-    'DEFAULT_THROTTLE_RATES': {'anon': '50/d', 'user': '100/d', 'daily_post': '5/day'},
+
+    'DEFAULT_THROTTLE_RATES': {'anon': '50/d', 'user': '100/d', 'daily_post': '5/day', 'ten_per_minute': '10/min'},
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'user.authentications.CsrfExemptSessionAuthentication',

@@ -21,6 +21,7 @@ class UserBase(AbstractUser):
         if self.activation_code is None:
             self.activation_code = get_random_string(128)
             print(self.activation_code)
+            # todo: delete print
         return super(UserBase, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -30,7 +31,7 @@ class UserBase(AbstractUser):
             return self.username
 
     def get_absolute_url(self):
-        return reverse('user-list-detail', kwargs={'pk': self.pk})
+        return reverse('user-detail', kwargs={'pk': self.pk})
 
     class Meta:
         abstract = True
@@ -41,7 +42,7 @@ class User(UserBase):
     class Meta:
         verbose_name = _('کاربر')
         verbose_name_plural = _('کاربران')
-        ordering = ['-date_joined', '-phone']
+        ordering = ['-date_joined']
         indexes = [
             models.Index(fields=['phone'], condition=Q(is_active=True), name='phone'),
             models.Index(fields=['username'], condition=Q(is_active=True), name='username'),

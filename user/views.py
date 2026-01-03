@@ -68,7 +68,6 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     authentication_classes = [CsrfExemptSessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request, *args, **kwargs):
         user = request.user
         serializer = ProfileSerializer(user)
@@ -101,6 +100,7 @@ class ForgotPasswordAPIView(APIView):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
                 token = default_token_generator.make_token(user)
                 print(f'uid {uid} \n token {token}')
+                # todo "delete print
                 send_mail('reset password',
                           f'url for reset your password : http://127.0.0.1:8000/reset-password/{uid}/{token}/',
                           from_email=settings.EMAIL_HOST, recipient_list=[email, ],
@@ -114,6 +114,7 @@ class ResetPasswordAPIView(APIView):
     def post(self, request, uidb64, token):
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
+            # todo : delete print
             print(f'uidb64 {uid} \n token {token} \n uid {uid}')
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):

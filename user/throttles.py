@@ -5,22 +5,17 @@ from rest_framework.throttling import AnonRateThrottle, SimpleRateThrottle, Base
 from request.models import SprayingRequest, ConsultingRequest
 
 
-class DailyPostThrottle(SimpleRateThrottle):
-    scope = 'daily_post'
+class TenPerMinutePostThrottle(SimpleRateThrottle):
+    scope = 'ten_per_minute'
 
     def get_cache_key(self, request, view):
-        """
-        بر اساس کاربر لاگین یا IP آدرس برای مهمان‌ها throttle بساز
-        """
         if request.method != 'POST':
-            # فقط برای POST محدودیت بذار
             return None
 
         if request.user.is_authenticated:
             ident = f"user-{request.user.id}"
         else:
-            ident = self.get_ident(request)  # یعنی IP آدرس
-
+            ident = self.get_ident(request)  # IP
         return self.cache_format % {
             'scope': self.scope,
             'ident': ident

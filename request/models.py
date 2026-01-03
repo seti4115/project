@@ -15,7 +15,8 @@ class Type(models.TextChoices):
 
 class Status(models.TextChoices):
     PENDING = 'pending', 'در انتظار بررسی'
-    APPROVED = 'approved', 'تایید شده'
+    OBSERVED = 'observed', 'مشاهده شده'
+    DONE = 'done', 'انجام شده'
     REJECTED = 'rejected', 'رد شده'
 
 

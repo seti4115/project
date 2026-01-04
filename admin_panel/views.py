@@ -6,18 +6,22 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from admin_panel.serializers import UserEditSerializer
+from admin_panel.serializers import AdminPanelSerializer, UserEditSerializer
 from request.models import ConsultingRequest, SprayingRequest
 from request.serializers import RequestConsultingAdminPanelSerializer, SprayingRequestAdminPanelSerializer
 from utils.methods import filter_queryset, jalali_to_gregorian
 from .models import AdminPanel
-from .permissions import IsAdminPanelPermission, IsSuperAdminPanelPermission
+from .permissions import IsAdminPanelPermission, IsFrontAdminPanelPermission, IsSuperAdminPanelPermission
 
 User = get_user_model()
 
 
 class AdminPanelAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
 
     def get(self, request, *args, **kwargs):
         users_count = User.objects.count()
@@ -46,7 +50,12 @@ class UserListAdminPanel(ListAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['username', 'phone', 'id', 'email', 'last_name']
     ordering_fields = ['phone', 'last_name', 'date_joined', 'last_login']
-    permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission]
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -74,16 +83,21 @@ class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
-            return [permissions.IsAuthenticated(), IsAdminPanelPermission()]
+            return [IsFrontAdminPanelPermission()]
         else:
-            return [permissions.IsAuthenticated(), IsSuperAdminPanelPermission()]
+            return [IsSuperAdminPanelPermission()]
 
 
 class ConsultingListAdminPanelView(ListAPIView):
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["id", "phone", "status", "created_at"]
     serializer_class = RequestConsultingAdminPanelSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission, IsSuperAdminPanelPermission]
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
 
     def get_queryset(self):
         q = ConsultingRequest.objects.all()
@@ -125,14 +139,18 @@ class RetrieveUpdateDestroyConsultingAdminPanel(RetrieveUpdateDestroyAPIView):
     queryset = ConsultingRequest.objects.all()
     model = ConsultingRequest
     serializer_class = RequestConsultingAdminPanelSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission, IsSuperAdminPanelPermission]
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
 
 
 class SprayingListAdminPanelView(ListAPIView):
     serializer_class = SprayingRequestAdminPanelSerializer
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["id", "phone", "status", "created_at"]
-    permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission, IsSuperAdminPanelPermission]
 
     def get_queryset(self):
         q = SprayingRequest.objects.all()
@@ -169,15 +187,47 @@ class SprayingListAdminPanelView(ListAPIView):
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
         return q
 
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
+
 
 class RetrieveUpdateDestroySprayingAdminPanel(RetrieveUpdateDestroyAPIView):
     queryset = SprayingRequest.objects.all()
     model = SprayingRequest
-    permission_classes = [permissions.IsAuthenticated, IsAdminPanelPermission, IsSuperAdminPanelPermission]
     serializer_class = SprayingRequestAdminPanelSerializer
 
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
 
 class IsAdminPanel(APIView):
     def get(self, request, *args, **kwargs):
         admin = AdminPanel.objects.filter(user=request.user).exists()
         return Response({'admin': admin}, status=status.HTTP_200_OK)
+
+
+class ListCreateAdminPanelAPIView(ListCreateAPIView):
+    queryset = AdminPanel.objects.all()
+    serializer_class = AdminPanelSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
+
+
+class RetrieveUpdateDestroyAdminPanelAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = AdminPanel.objects.all()
+    serializer_class = AdminPanelSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]

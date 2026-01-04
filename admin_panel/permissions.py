@@ -8,7 +8,8 @@ class IsAdminPanelPermission(BasePermission):
         if not request.user.is_authenticated:
             return False
         try:
-            return request.user.adminpanel.access in [Access.admin, Access.superuser]
+            print(request.user.adminpanel.access in [Access.admin])
+            return request.user.adminpanel.access in [Access.admin]
         except AdminPanel.DoesNotExist:
             return False
 
@@ -18,14 +19,16 @@ class IsSuperAdminPanelPermission(BasePermission):
         if not request.user.is_authenticated:
             return False
         try:
-            return request.user.adminpanel.access == Access.superuser
+            print(request.user.adminpanel.access in [Access.superuser])
+            return request.user.adminpanel.access in [Access.superuser]
         except AdminPanel.DoesNotExist:
             return False
 
-class EditPermission(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_authenticated:
-            if request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
-                return True
+class IsFrontAdminPanelPermission(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
             return False
-        return False
+        try:
+            return request.user.adminpanel.access in [Access.admin, Access.superuser]
+        except AdminPanel.DoesNotExist:
+            return False

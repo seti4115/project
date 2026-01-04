@@ -57,7 +57,7 @@ class AllSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'phone', 'first_name', 'last_name', 'is_active', 'is_admin',]
+        fields = ['id', 'phone', 'first_name', 'last_name', 'is_active', 'is_admin',]
 
 
 class AdminPanelSerializer(serializers.ModelSerializer):
@@ -70,4 +70,4 @@ class AdminPanelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdminPanel
-        fields = ['user', 'user_id', 'access']
+        fields = ['user', 'user_id','id' ,'access']

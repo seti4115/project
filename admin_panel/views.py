@@ -222,3 +222,13 @@ class ListCreateAdminPanelAPIView(ListCreateAPIView):
         else:
             return [IsSuperAdminPanelPermission()]
 
+
+class RetrieveUpdateDestroyAdminPanelAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = AdminPanel.objects.all()
+    serializer_class = AdminPanelSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]

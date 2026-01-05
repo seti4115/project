@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'admin_panel.apps.AdminPanelConfig',
     'request.apps.RequestConfig',
-    'log.apps.LogConfig',
     # external
     'rest_framework',
     'easyaudit',

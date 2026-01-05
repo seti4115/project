@@ -4,7 +4,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from tasks.db_tasks import logs
 from request.models import Type, ConsultingRequest, SprayingRequest
 from request.serializers import UserRequestConsultingSerializer, ViewRequestConsultingSerializer, \
     SprayingRequestSerializer, ViewSprayingRequestSerializer
@@ -53,28 +52,6 @@ class UserRequestConsultingAPIView(APIView):
         serializer = ViewRequestConsultingSerializer(requests, many=True)
         return Response(serializer.data)
 
-    def finalize_response(self, request, response, *args, **kwargs):
-        if request.method == "POST":
-            error = ""
-            if response.exception:
-                error = response.data
-            logs.apply_async(
-                kwargs={
-                    "level": "info",
-                    "status_code": response.status_code,
-                    "views": "UserRequestConsultingAPIView",
-                    "message": "../request/consulting/ \n درخواست مشاوره جدید ثبت شد!",
-                    "action": request.method,
-                    "object_id": "new id",
-                    "ip_address": ip_address(request),
-                    "user_agent": get_user_agent(request),
-                    "from_user": request.user.id,
-                    "exception": error
-                },
-                queue="db_heavy",
-                ignore_result=True,
-            )
-        return super().finalize_response(request, response, *args, **kwargs)
 
 
 class UserRequestSprayingAPIView(APIView):
@@ -121,28 +98,6 @@ class UserRequestSprayingAPIView(APIView):
         serializer = ViewSprayingRequestSerializer(requests, many=True)
         return Response(serializer.data)
 
-    def finalize_response(self, request, response, *args, **kwargs):
-        if request.method == "POST":
-            error = ""
-            if response.exception:
-                error = response.data
-            logs.apply_async(
-                kwargs={
-                    "level": "info",
-                    "status_code": response.status_code,
-                    "views": "UserRequestSprayingAPIView",
-                    "message": "../request/spraying/ \n درخواست سم پاشی جدید ثبت شد!",
-                    "action": request.method,
-                    "object_id": "new id",
-                    "ip_address": ip_address(request),
-                    "user_agent": get_user_agent(request),
-                    "from_user": request.user.id,
-                    "exception": error
-                },
-                queue="db_heavy",
-                ignore_result=True,
-            )
-        return super().finalize_response(request, response, *args, **kwargs)
 
 
 class UserRequestPanelAPIView(APIView):

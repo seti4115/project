@@ -8,11 +8,12 @@ from rest_framework import status, permissions
 from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from tasks.db_tasks import logs
 from config import settings
 from user.authentications import authenticate, CsrfExemptSessionAuthentication
 from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer, ForgotPasswordSerializer
 from user.tasks import send_email
+from utils.methods import get_user_agent, ip_address
 
 User = get_user_model()
 
@@ -63,6 +64,28 @@ class RegisterAPIView(APIView):
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def finalize_response(self, request, response, *args, **kwargs):
+        error = ""
+        if response.exception:
+            error = response.data
+        logs.apply_async(
+            kwargs={
+                "level": "info",
+                "status_code": response.status_code,
+                "views": "RegisterAPIView",
+                "message": "../register/ \n کاربر جدید ثبت نام کرد!",
+                "action": request.method,
+                "object_id": "new id",
+                "ip_address": ip_address(request),
+                "user_agent": get_user_agent(request),
+                "from_user": request.POST.get('phone'),
+                "exception": error
+            },
+            queue="db_heavy",
+            ignore_result=True,
+        )
+        return super().finalize_response(request, response, *args, **kwargs)
+
 
 class UserProfileAPIView(RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
@@ -88,6 +111,28 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         user = get_object_or_404(User, pk=request.user.id)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        if request.method in ["POST", "DELETE", "PUT", "PATCH"]:
+            if response.exception:
+                error = response.data
+                logs.apply_async(
+                    kwargs={
+                        "level": "info",
+                        "status_code": response.status_code,
+                        "views": "UserProfileAPIView",
+                        "message": "../profile/",
+                        "action": request.method,
+                        "object_id": "new id",
+                        "ip_address": ip_address(request),
+                        "user_agent": get_user_agent(request),
+                        "from_user": request.user.id,
+                        "exception": error
+                    },
+                    queue="db_heavy",
+                    ignore_result=True,
+            )
+        return super().finalize_response(request, response, *args, **kwargs)
 
 
 class ForgotPasswordAPIView(APIView):
@@ -129,6 +174,19 @@ class ResetPasswordAPIView(APIView):
 
         user.set_password(password)
         user.save()
+        logs.apply_async(
+            kwargs={
+                "level": "info",
+                "status_code": '200',
+                "views": "ResetPasswordAPIView",
+                "message": f"../reset-password/uidb64/token/ \n کاربر {user.phone}  پسورد خود را تغییر داد!",
+                "action": request.method,
+                "object_id": user.id,
+                "ip_address": ip_address(request),
+                "user_agent": get_user_agent(request),
+                "from_user": user.pk,
+            }
+        )
         return Response({'message': 'رمز عبور با موفقیت تغییر یافت'}, status=status.HTTP_200_OK)
 
 

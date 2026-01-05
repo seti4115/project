@@ -1,15 +1,23 @@
 import os
+from datetime import timedelta
 
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-celery_db = Celery("db_tasks")
-celery_db.config_from_object("django.conf:settings", namespace="CELERY_DB")
+app = Celery("config")
+app.config_from_object("django.conf:settings", namespace="CELERY")
 
-celery_cache = Celery("cache_tasks")
-celery_cache.config_from_object("django.conf:settings", namespace="CELERY_CACHE")
+# app.conf.beat_schedule = {
+#     "every_thirty_seconds": {
+#         "task": "tasks.db_tasks.cleanup_old_request_logs",
+#         "schedule": timedelta(seconds=15),
+#         "kwargs": {
+#             "days": 1,
+#             "minutes": 0,
+#             "seconds": 0
+#         }
+#     },
+# }
 
-# autodiscover
-celery_db.autodiscover_tasks(["tasks"])
-celery_cache.autodiscover_tasks(["tasks"])
+app.autodiscover_tasks()

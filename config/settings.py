@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from environs import env
+from kombu import Queue
 
 env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'admin_panel.apps.AdminPanelConfig',
     'request.apps.RequestConfig',
+    'log.apps.LogConfig',
     # external
     'rest_framework',
     'rest_framework_simplejwt',
@@ -35,6 +37,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'persiantools',
     'webpush',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -168,42 +171,24 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 
 CELERY_TIMEZONE = "Asia/Tehran"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
-# pick which cache from the CACHES setting.
-CELERY_CACHE_BACKEND = 'default'
-CELERY_RESULT_EXTENDED = True
-# django setting.
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    },
-    'db_cache': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'my_cache_table',
-    }
+CELERY_ENABLE_UTC = False
+
+CELERY_TASK_QUEUES = (
+    Queue("db_heavy"),
+    Queue("cache_fast"),
+)
+
+CELERY_TASK_ROUTES = {
+    "apps.requests.tasks_db.*": {"queue": "db_heavy"},
+    "apps.requests.tasks_cache.*": {"queue": "cache_fast"},
 }
-BROKER_URL = "redis://127.0.0.1:6379/0"
-
-CELERY_DB_BROKER_URL = BROKER_URL
-# for database
-CELERY_DB_RESULT_BACKEND = "django-db"
-
-CELERY_CACHE_BROKER_URL = BROKER_URL
-# for cache
-CELERY_CACHE_RESULT_BACKEND = "django-cache"
-CELERY_CACHE_CACHE_BACKEND = "default"
 
 WEBPUSH_SETTINGS = {
     "VAPID_PUBLIC_KEY": "BIsMeWIG5RoGCyqIH-ThyVn6NGlicZqiB0fmcuhqPOzBZWWu5OCjYCVX6qqiEAuhZFUDwDszRjvj9jX-HmkvH-M",
@@ -215,3 +200,13 @@ WEBPUSH_SETTINGS = {
 # "publicKey": "BIsMeWIG5RoGCyqIH-ThyVn6NGlicZqiB0fmcuhqPOzBZWWu5OCjYCVX6qqiEAuhZFUDwDszRjvj9jX-HmkvH-M",
 # "privateKey": "0skZydInrX30tgkbV_h14Y_20hNGWSQM0P1AGOPhjlc"
 # }
+
+CELERY_BEAT_SCHEDULE = {
+    "every_thirty_seconds": {
+        "task": "tasks.db_tasks.cleanup_old_request_logs",
+        "schedule": timedelta(seconds=15),
+        "kwargs": {
+            "days": 1,
+        }
+    },
+}

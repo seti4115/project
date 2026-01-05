@@ -28,3 +28,7 @@ def filter_queryset(params, filters: list, query):
         query = query.filter(**filter_kwargs)
 
     return query
+
+def get_user_agent(request):
+    user_agent = request.META.get("HTTP_USER_AGENT", "")
+    return user_agent

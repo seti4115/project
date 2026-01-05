@@ -20,7 +20,7 @@ class UserEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'phone', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_admin', 'date_joined',
-                  'new_password', 'old_password']
+                  'new_password', 'old_password', 'profile_link']
         read_only_fields = ['id']
 
     def validate(self, attrs):

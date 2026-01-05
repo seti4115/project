@@ -8,7 +8,6 @@ class IsAdminPanelPermission(BasePermission):
         if not request.user.is_authenticated:
             return False
         try:
-            print(request.user.adminpanel.access in [Access.admin])
             return request.user.adminpanel.access in [Access.admin]
         except AdminPanel.DoesNotExist:
             return False
@@ -19,7 +18,6 @@ class IsSuperAdminPanelPermission(BasePermission):
         if not request.user.is_authenticated:
             return False
         try:
-            print(request.user.adminpanel.access in [Access.superuser])
             return request.user.adminpanel.access in [Access.superuser]
         except AdminPanel.DoesNotExist:
             return False

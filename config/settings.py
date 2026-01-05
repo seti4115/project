@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'log.apps.LogConfig',
     # external
     'rest_framework',
+    'easyaudit',
     'rest_framework_simplejwt',
     'taggit',
     'corsheaders',
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -123,7 +125,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'user.authentications.CsrfExemptSessionAuthentication',
-    )
+    ),
 }
 
 AUTH_USER_MODEL = 'user.User'
@@ -202,9 +204,9 @@ WEBPUSH_SETTINGS = {
 # }
 
 CELERY_BEAT_SCHEDULE = {
-    "every_thirty_seconds": {
+    "every_thirty_days": {
         "task": "tasks.db_tasks.cleanup_old_request_logs",
-        "schedule": timedelta(seconds=15),
+        "schedule": timedelta(days=1),
         "kwargs": {
             "days": 1,
         }

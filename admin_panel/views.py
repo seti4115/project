@@ -92,6 +92,10 @@ class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
         error = ""
         if response.exception:
             error = response.data
+        try:
+            object_id = self.get_object().id
+        except Exception as e:
+            object_id = None
 
         if request.method in ['PUT', 'PATCH', 'POST', 'DELETE']:
             logs.apply_async(
@@ -101,7 +105,7 @@ class UserDetailUpdateDestroyAdminPanel(RetrieveUpdateDestroyAPIView):
                 "views": "UserDetailUpdateDestroyAdminPanel",
                 "message": "../admin-panel/users/<pk>/",
                 "action": request.method,
-                "object_id": self.get_object().id,
+                "object_id": object_id,
                 "ip_address": ip_address(request),
                 "user_agent": get_user_agent(request),
                 "from_user": request.user.id,
@@ -173,10 +177,14 @@ class RetrieveUpdateDestroyConsultingAdminPanel(RetrieveUpdateDestroyAPIView):
             return [IsSuperAdminPanelPermission()]
 
     def finalize_response(self, request, response, *args, **kwargs):
-        error = ""
-        if response.exception:
-            error = response.data
         if request.method in ['PUT', 'PATCH', 'POST', 'DELETE']:
+            error = ""
+            try:
+                object_id = self.get_object().id
+            except Exception as e:
+                object_id = None
+            if response.exception:
+                error = response.data
             logs.apply_async(
                 kwargs={
                     "level": "info",
@@ -184,7 +192,7 @@ class RetrieveUpdateDestroyConsultingAdminPanel(RetrieveUpdateDestroyAPIView):
                     "views": "UserDetailUpdateDestroyAdminPanel",
                     "message": "../admin-panel/users/<pk>/",
                     "action": request.method,
-                    "object_id": self.get_object().id,
+                    "object_id": object_id,
                     "ip_address": ip_address(request),
                     "user_agent": get_user_agent(request),
                     "from_user": request.user.id,
@@ -193,6 +201,7 @@ class RetrieveUpdateDestroyConsultingAdminPanel(RetrieveUpdateDestroyAPIView):
                 queue="db_heavy",
                 ignore_result=True,
             )
+
         return super().finalize_response(request, response, *args, **kwargs)
 
 
@@ -258,6 +267,11 @@ class RetrieveUpdateDestroySprayingAdminPanel(RetrieveUpdateDestroyAPIView):
         error = ""
         if response.exception:
             error = response.data
+        try:
+            object_id = self.get_object().id
+        except Exception as e:
+            object_id = None
+            print(request.method)
         if request.method in ['PUT', 'PATCH', 'POST', 'DELETE']:
             logs.apply_async(
             kwargs={
@@ -266,7 +280,7 @@ class RetrieveUpdateDestroySprayingAdminPanel(RetrieveUpdateDestroyAPIView):
                 "views": "RetrieveUpdateDestroySprayingAdminPanel",
                 "message": "../admin-panel/spraying/<pk>/",
                 "action": request.method,
-                "object_id": self.get_object().id,
+                "object_id": object_id,
                 "ip_address": ip_address(request),
                 "user_agent": get_user_agent(request),
                 "from_user": request.user.id,

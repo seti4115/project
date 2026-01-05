@@ -20,7 +20,8 @@ class Log(models.Model):
     from_user = models.CharField(max_length=120, blank=True, null=True)
     to_user = models.CharField(max_length=120, blank=True, null=True)
     user_agent = models.TextField(blank=True)
-    object_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
+    ip_address = models.CharField(max_length=100 ,blank=True, null=True)
+    object_id = models.CharField(max_length=20 ,null=True, blank=True, db_index=True)
     exception = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 

@@ -113,7 +113,7 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def finalize_response(self, request, response, *args, **kwargs):
-        if request.method in ["POST", "DELETE", "PUT", "PATCH"]:
+        if request.method in ["DELETE", "PUT"]:
             if response.exception:
                 error = response.data
                 logs.apply_async(

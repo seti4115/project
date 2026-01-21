@@ -2,11 +2,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db.models import Q
 from rest_framework import permissions, filters, status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.generics import get_object_or_404, ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from admin_panel.serializers import AdminPanelSerializer, UserEditSerializer
+from admin_panel.serializers import AdminPanelSerializer, ChangePassUserAdminPanelSerializer, UserEditSerializer
 from product.models import Product
 from product.serializers import ProductAllFieldSerializer, ProductShowSerializer
 from request.models import ConsultingRequest, SprayingRequest
@@ -224,3 +225,18 @@ class RetrieveUpdateDestroyProductAdminPanelAPIView(RetrieveUpdateDestroyAPIView
             return [IsFrontAdminPanelPermission()]
         else:
             return [IsSuperAdminPanelPermission()]
+
+
+class ChangePassUserAdminPanelView(APIView):
+    permission_classes = [IsSuperAdminPanelPermission]
+
+    def post(self, request:Request, *args, **kwargs):
+        end_index = self.request.get_full_path()[19::].find("/")
+        pk = self.request.get_full_path()[19:19 + end_index]
+        user = get_object_or_404(User, pk=pk)
+        serializer = ChangePassUserAdminPanelSerializer(data=request.data)
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data["password1"])
+            user.save()
+            return Response({"change password": "success"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

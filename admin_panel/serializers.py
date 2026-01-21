@@ -55,3 +55,13 @@ class AdminPanelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminPanel
         fields = ['user', 'user_id','id' ,'access']
+
+
+class ChangePassUserAdminPanelSerializer(serializers.Serializer):
+    password1 = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        if attrs.get('password1') != attrs.get('password2'):
+            raise serializers.ValidationError("Passwords must match")
+        return attrs

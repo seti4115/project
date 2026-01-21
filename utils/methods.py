@@ -54,3 +54,15 @@ def date_filter(params, queryset, field):
     except:
         pass
     return queryset
+
+
+def ordering_filter(params, query):
+    ordering = params.getlist("ordering")
+    if ordering:
+        for order in ordering:
+            query = query.order_by(f"{order}")
+    return query
+
+
+
+

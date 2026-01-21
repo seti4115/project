@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from request.models import Type, ConsultingRequest, SprayingRequest
 from request.serializers import UserRequestConsultingSerializer, ViewRequestConsultingSerializer, \
     SprayingRequestSerializer, ViewSprayingRequestSerializer
-from utils.methods import date_filter, filter_queryset, get_user_agent, ip_address, jalali_to_gregorian
+from utils.methods import date_filter, filter_queryset, get_user_agent, ip_address, jalali_to_gregorian, ordering_filter
 
 
 class UserRequestConsultingAPIView(APIView):
@@ -27,17 +27,8 @@ class UserRequestConsultingAPIView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         requests = ConsultingRequest.objects.filter(phone=request.user.phone, type=Type.CONSULTING)
         requests = filter_queryset(request.query_params, ["id", "status"], requests)
-        order = request.query_params.get("ordering")
+        requests = ordering_filter(request.query_params, requests)
         requests = date_filter(request.query_params, requests, "created_at")
-        try:
-            if order:
-                if order.startswith("-"):
-                    requests = requests.order_by(f"-{order}")
-                else:
-                    requests = requests.order_by(order)
-
-        except Exception as e:
-            return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ViewRequestConsultingSerializer(requests, many=True)
         return Response(serializer.data)
 
@@ -57,21 +48,12 @@ class UserRequestSprayingAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request: Request, *args, **kwargs):
-
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         requests = SprayingRequest.objects.filter(phone=request.user.phone, type=Type.SPRAYING)
         requests = filter_queryset(request.query_params, ["id", "status"], requests)
-        order = request.query_params.get("ordering")
+        requests = ordering_filter(request.query_params, requests)
         requests = date_filter(request.query_params, requests, "created_at")
-        try:
-            if order:
-                if order.startswith("-"):
-                    requests = requests.order_by(f"-{order}")
-                else:
-                    requests = requests.order_by(order)
-        except Exception as e:
-            return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ViewSprayingRequestSerializer(requests, many=True)
         return Response(serializer.data)
 

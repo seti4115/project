@@ -26,23 +26,20 @@ class AdminPanelAPIView(APIView):
             return [IsSuperAdminPanelPermission()]
 
     def get(self, request, *args, **kwargs):
+        print(request.GET)
         users_count = User.objects.count()
         consulting_count = ConsultingRequest.objects.count()
         spraying_count = SprayingRequest.objects.count()
-        # users = User.objects.all()
-        # consulting_requests = ConsultingRequest.objects.all().order_by("-created_at")
-        # spraying_requests = SprayingRequest.objects.all().order_by("-created_at")
-        # serializer = AllSerializer(
-        #     {
-        #         "users": UserDetailSerializer(users, many=True).data,
-        #         "consulting_requests": ViewRequestConsultingSerializer(consulting_requests, many=True).data,
-        #         "spraying_requests": ViewSprayingRequestSerializer(spraying_requests, many=True).data,
-        #     }
-        # )
+        product_count = Product.objects.count()
+        adminB_count = User.objects.filter(Q(is_superuser=True) | Q(is_staff=True)).count()
+        admin_panel_count = AdminPanel.objects.count()
         return Response({
             'users_count': users_count,
             'consulting_count': consulting_count,
             'spraying_count': spraying_count,
+            'product_count': product_count,
+            'admin_backend_count': adminB_count,
+            'admin_front_count': admin_panel_count,
         }, status=status.HTTP_200_OK)
 
 

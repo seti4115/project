@@ -31,11 +31,11 @@ class UserBase(AbstractUser):
             return self.username
 
     def get_absolute_url(self):
-        return reverse('user-detail', kwargs={'pk': self.pk})
+        return reverse('user-detail-adminpanel', kwargs={'pk': self.pk})
 
     class Meta:
         abstract = True
-        unique_together = ('phone', 'activation_code')
+        unique_together = ('phone', 'last_name')
 
 
 class User(UserBase):

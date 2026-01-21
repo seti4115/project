@@ -26,7 +26,6 @@ class AdminPanelAPIView(APIView):
             return [IsSuperAdminPanelPermission()]
 
     def get(self, request, *args, **kwargs):
-        print(request.GET)
         users_count = User.objects.count()
         consulting_count = ConsultingRequest.objects.count()
         spraying_count = SprayingRequest.objects.count()

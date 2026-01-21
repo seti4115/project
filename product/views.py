@@ -54,10 +54,14 @@ class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
     lookup_field = 'slug'
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return ProductShowSerializer
+        if self.request.user.is_authenticated:
+            is_admin = self.request.user.is_superuser or self.request.user.is_staff or self.request.user.is_admin
         else:
+            is_admin = False
+        if is_admin:
             return ProductAllFieldSerializer
+        else:
+            return ProductShowSerializer
 
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -67,8 +71,6 @@ class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
-
         tags = instance.tags.all()
         same_products = (
             Product.objects.filter(tags__in=tags).annotate(same_tags=Count('tags'))
@@ -79,7 +81,7 @@ class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
         same_products_data = ProductShowSerializer(same_products, many=True, context={"request": request}).data
 
         data = {
-            "product": serializer.data,
+            "product": self.get_serializer(instance).data,
             "same_products": same_products_data
         }
 

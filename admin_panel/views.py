@@ -7,9 +7,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from admin_panel.serializers import AdminPanelSerializer, UserEditSerializer
+from product.models import Product
+from product.serializers import ProductAllFieldSerializer, ProductShowSerializer
 from request.models import ConsultingRequest, SprayingRequest
 from request.serializers import RequestConsultingAdminPanelSerializer, SprayingRequestAdminPanelSerializer
-from utils.methods import filter_queryset, get_user_agent, ip_address, jalali_to_gregorian
+from utils.methods import date_filter, filter_queryset, get_user_agent, ip_address, jalali_to_gregorian
 from .models import AdminPanel
 from .permissions import IsFrontAdminPanelPermission, IsSuperAdminPanelPermission
 
@@ -62,18 +64,7 @@ class UserListAdminPanel(ListAPIView):
         queryset = self.queryset
         params = self.request.GET
         queryset = filter_queryset(params, ["id", "phone", "is_active", "is_admin", "username"], queryset)
-        date_after = params.get("start_date")
-        date_before = params.get("end_date")
-        if date_after and date_before:
-            date_after = jalali_to_gregorian(date_after)
-            date_before = jalali_to_gregorian(date_before)
-            queryset = queryset.filter(date_joined__range=[date_after, date_before])
-        elif date_after:
-            date_after = jalali_to_gregorian(date_after)
-            queryset = queryset.filter(date_joined__gte=date_after)
-        elif date_before:
-            date_before = jalali_to_gregorian(date_before)
-            queryset = queryset.filter(date_joined__lte=date_before)
+        queryset = date_filter(params, queryset, "created_at")
         return queryset.all()
 
 
@@ -104,42 +95,22 @@ class ConsultingListAdminPanelView(ListAPIView):
         q = ConsultingRequest.objects.all()
         params = self.request.GET
         search = params.get("search")
-        date_after = params.get("start_date")
-        date_before = params.get("end_date")
+        q = date_filter(params, q, "created_at")
         q = filter_queryset(params, ["id", "status", "phone"], q)
-        try:
-            if date_after and date_before:
-                date_after = jalali_to_gregorian(date_after)
-                date_before = jalali_to_gregorian(date_before)
-                q = q.filter(created_at__range=[date_after, date_before])
-            elif date_after:
-                date_after = jalali_to_gregorian(date_after)
-                q = q.filter(created_at__gte=date_after)
-            elif date_before:
-                date_before = jalali_to_gregorian(date_before)
-                q = q.filter(created_at__lte=date_before)
-
-            if search:
-                q = q.filter(
-                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(
-                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search) | Q(
-                        message__icontains=search))
-                # search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
-                # search_query = SearchQuery(search, config="simple")
-                # q = (
-                #     q.annotate(rank=SearchRank(search_vector, search_query))
-                #     .filter(rank__gte=0.1)
-                #     .order_by("-rank")
-                # )
-        except Exception as e:
-            return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
+        if search:
+            search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
+            search_query = SearchQuery(search, config="simple")
+            q = (
+                q.annotate(rank=SearchRank(search_vector, search_query))
+                .filter(rank__gte=0.1)
+                .order_by("-rank")
+            )
         return q
 
 
 
 class RetrieveUpdateDestroyConsultingAdminPanel(RetrieveUpdateDestroyAPIView):
     queryset = ConsultingRequest.objects.all()
-    model = ConsultingRequest
     serializer_class = RequestConsultingAdminPanelSerializer
 
     def get_permissions(self):
@@ -159,35 +130,16 @@ class SprayingListAdminPanelView(ListAPIView):
         q = SprayingRequest.objects.all()
         params = self.request.GET
         search = params.get("search")
-        date_after = params.get("start_date")
-        date_before = params.get("end_date")
         q = filter_queryset(params, ["id", "status", "phone"], q)
-        try:
-            if date_after and date_before:
-                date_after = jalali_to_gregorian(date_after)
-                date_before = jalali_to_gregorian(date_before)
-                q = q.filter(created_at__range=[date_after, date_before])
-            elif date_after:
-                date_after = jalali_to_gregorian(date_after)
-                q = q.filter(created_at__gte=date_after)
-            elif date_before:
-                date_before = jalali_to_gregorian(date_before)
-                q = q.filter(created_at__lte=date_before)
-
-            if search:
-                q = q.filter(
-                    Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(
-                        province__icontains=search) | Q(city__icontains=search) | Q(land_product__icontains=search) | Q(
-                        message__icontains=search) | Q(address__icontains=search))
-                # search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
-                # search_query = SearchQuery(search, config="simple")
-                # q = (
-                #     q.annotate(rank=SearchRank(search_vector, search_query))
-                #     .filter(rank__gte=0.1)
-                #     .order_by("-rank")
-                # )
-        except Exception as e:
-            return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
+        q = date_filter(params, q, "created_at")
+        if search:
+            search_vector = SearchVector("id","first_name","last_name",weight="A",config="simple") + SearchVector("province","city","land_product","message", weight="B", config="simple")
+            search_query = SearchQuery(search, config="simple")
+            q = (
+                q.annotate(rank=SearchRank(search_vector, search_query))
+                .filter(rank__gte=0.1)
+                .order_by("-rank")
+                )
         return q
 
     def get_permissions(self):
@@ -199,7 +151,6 @@ class SprayingListAdminPanelView(ListAPIView):
 
 class RetrieveUpdateDestroySprayingAdminPanel(RetrieveUpdateDestroyAPIView):
     queryset = SprayingRequest.objects.all()
-    model = SprayingRequest
     serializer_class = SprayingRequestAdminPanelSerializer
 
     def get_permissions(self):
@@ -237,3 +188,43 @@ class RetrieveUpdateDestroyAdminPanelAPIView(RetrieveUpdateDestroyAPIView):
         else:
             return [IsSuperAdminPanelPermission()]
 
+
+class ListCreateProductAdminPanelAPIView(ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductAllFieldSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
+
+    def get_queryset(self):
+        queryset = self.queryset
+        params = self.request.GET
+        search = params.get("search")
+        queryset = filter_queryset(params, ["id", "status", "phone"], queryset)
+        queryset = date_filter(params, queryset, "created_at")
+        if search:
+            search_vector = SearchVector("id", "title", "slug", "tags", weight="A", config="simple") + SearchVector(
+                "title_en", "brand", "description", weight="B", config="simple")
+            search_query = SearchQuery(search, config="simple")
+            queryset = (
+                queryset.annotate(rank=SearchRank(search_vector, search_query))
+                .filter(rank__gte=0.1)
+                .order_by("-rank")
+            )
+        return queryset
+
+
+class RetrieveUpdateDestroyProductAdminPanelAPIView(RetrieveUpdateDestroyAPIView):
+    lookup_url_kwarg = "slug"
+    lookup_field = "slug"
+    queryset = Product.objects.all()
+    serializer_class = ProductAllFieldSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]

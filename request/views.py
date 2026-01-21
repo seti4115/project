@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from request.models import Type, ConsultingRequest, SprayingRequest
 from request.serializers import UserRequestConsultingSerializer, ViewRequestConsultingSerializer, \
     SprayingRequestSerializer, ViewSprayingRequestSerializer
-from utils.methods import filter_queryset, get_user_agent, ip_address, jalali_to_gregorian
+from utils.methods import date_filter, filter_queryset, get_user_agent, ip_address, jalali_to_gregorian
 
 
 class UserRequestConsultingAPIView(APIView):
@@ -28,24 +28,13 @@ class UserRequestConsultingAPIView(APIView):
         requests = ConsultingRequest.objects.filter(phone=request.user.phone, type=Type.CONSULTING)
         requests = filter_queryset(request.query_params, ["id", "status"], requests)
         order = request.query_params.get("ordering")
-        date_after = request.query_params.get("start_date")
-        date_before = request.query_params.get("end_date")
+        requests = date_filter(request.query_params, requests, "created_at")
         try:
             if order:
                 if order.startswith("-"):
                     requests = requests.order_by(f"-{order}")
                 else:
                     requests = requests.order_by(order)
-            if date_after and date_before:
-                date_after = jalali_to_gregorian(date_after)
-                date_before = jalali_to_gregorian(date_before)
-                requests = requests.filter(created_at__range=[date_after, date_before])
-            elif date_after:
-                date_after = jalali_to_gregorian(date_after)
-                requests = requests.filter(created_at__gte=date_after)
-            elif date_before:
-                date_before = jalali_to_gregorian(date_before)
-                requests = requests.filter(created_at__lte=date_before)
 
         except Exception as e:
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
@@ -74,25 +63,13 @@ class UserRequestSprayingAPIView(APIView):
         requests = SprayingRequest.objects.filter(phone=request.user.phone, type=Type.SPRAYING)
         requests = filter_queryset(request.query_params, ["id", "status"], requests)
         order = request.query_params.get("ordering")
-        date_after = request.query_params.get("start_date")
-        date_before = request.query_params.get("end_date")
+        requests = date_filter(request.query_params, requests, "created_at")
         try:
             if order:
                 if order.startswith("-"):
                     requests = requests.order_by(f"-{order}")
                 else:
                     requests = requests.order_by(order)
-            if date_after and date_before:
-                date_after = jalali_to_gregorian(date_after)
-                date_before = jalali_to_gregorian(date_before)
-                requests = requests.filter(created_at__range=[date_after, date_before])
-            elif date_after:
-                date_after = jalali_to_gregorian(date_after)
-                requests = requests.filter(created_at__gte=date_after)
-            elif date_before:
-                date_before = jalali_to_gregorian(date_before)
-                requests = requests.filter(created_at__lte=date_before)
-
         except Exception as e:
             return Response({"error": "bad query sent."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ViewSprayingRequestSerializer(requests, many=True)

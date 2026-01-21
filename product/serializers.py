@@ -15,7 +15,23 @@ class ProductAllFieldSerializer(TaggitSerializer, ModelSerializer):
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = [
+            'title',
+            'title_en',
+            'slug',
+            'weight',
+            'type',
+            'brand',
+            'description',
+            'price',
+            'production_date',
+            'expiration_date',
+            'is_active',
+            'created_at',
+            'updated_at',
+            'link',
+            'tags',
+        ]
 
 
 class ProductShowSerializer(TaggitSerializer, ModelSerializer):

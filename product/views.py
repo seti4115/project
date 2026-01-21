@@ -4,17 +4,21 @@ from rest_framework import permissions, status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
+from admin_panel.models import AdminPanel
 from product.models import Product
 from product.serializers import ProductAllFieldSerializer, ProductShowSerializer
 
 
 class ProductListCreateView(ListCreateAPIView):
-
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return ProductShowSerializer
+        if self.request.user.is_authenticated:
+            is_admin = self.request.user.is_superuser or self.request.user.is_staff or self.request.user.is_admin
         else:
+            is_admin = False
+        if is_admin:
             return ProductAllFieldSerializer
+        else:
+            return ProductShowSerializer
 
     def get_permissions(self):
         if self.request.method == 'GET':

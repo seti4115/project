@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'admin_panel.apps.AdminPanelConfig',
     'request.apps.RequestConfig',
+    'site_settings.apps.SiteSettingsConfig',
     # external
     'rest_framework',
     'easyaudit',
@@ -36,7 +37,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'drf_yasg',
     'persiantools',
-    'webpush',
+    # 'webpush',
     'django_celery_beat',
 ]
 

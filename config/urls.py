@@ -28,7 +28,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path(r'^webpush/', include('webpush.urls')),
     path('admin/', admin.site.urls),
     path('', include('home.urls')),
     path('', include('user.urls')),

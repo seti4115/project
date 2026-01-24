@@ -12,6 +12,8 @@ from product.models import Product
 from product.serializers import ProductAllFieldSerializer, ProductShowSerializer
 from request.models import ConsultingRequest, SprayingRequest
 from request.serializers import RequestConsultingAdminPanelSerializer, SprayingRequestAdminPanelSerializer
+from site_settings.models import SiteSettings
+from site_settings.serializers import ListSiteSettingsSerializer, SiteSettingsSerializer
 from utils.methods import date_filter, filter_queryset, get_user_agent, ip_address, jalali_to_gregorian
 from .models import AdminPanel
 from .permissions import IsFrontAdminPanelPermission, IsSuperAdminPanelPermission
@@ -240,3 +242,30 @@ class ChangePassUserAdminPanelView(APIView):
             user.save()
             return Response({"change password": "success"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SiteSettingsAdminPanelView(ListCreateAPIView):
+    queryset = SiteSettings.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return ListSiteSettingsSerializer
+        else:
+            return SiteSettingsSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]
+
+
+class RetrieveUpdateDestroySiteSettingsAdminPanelAPIView(RetrieveUpdateDestroyAPIView):
+    serializer_class = SiteSettingsSerializer
+    queryset = SiteSettings.objects.all()
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [IsFrontAdminPanelPermission()]
+        else:
+            return [IsSuperAdminPanelPermission()]

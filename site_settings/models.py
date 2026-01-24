@@ -1,4 +1,6 @@
 from django.db import models
+from rest_framework.reverse import reverse
+
 
 class SiteSettings(models.Model):
     title = models.CharField(max_length=100, verbose_name="عنوان سایت")
@@ -14,6 +16,9 @@ class SiteSettings(models.Model):
     address = models.TextField(blank=True, verbose_name="آدرس")
     manager = models.TextField(blank=True, verbose_name="مدیر عامل")
     is_active = models.BooleanField(default=False, verbose_name="وضعیت فعال بودن")
+
+    def get_absolute_url(self):
+        return reverse('site-settings-detail-adminpanel', kwargs={'pk':self.pk})
 
 
     def __str__(self):

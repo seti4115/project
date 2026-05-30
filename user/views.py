@@ -8,13 +8,13 @@ from rest_framework import status, permissions
 from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from config import settings
 from user.authentications import authenticate, CsrfExemptSessionAuthentication
 from user.serializers import UserLoginSerializer, RegisterSerializer, ProfileSerializer, ForgotPasswordSerializer
+from user.tasks import send_email
+from utils.methods import get_user_agent, ip_address
 
 User = get_user_model()
-
 
 
 class LoginAPIView(APIView):
@@ -59,14 +59,15 @@ class RegisterAPIView(APIView):
             )
             user.set_password(password)
             user.save()
+            send_email.delay('زراعتی نو با زراعتینو',f'سلام  {first_name} عزیز! از اینکه زراعتینو رو انتخاب کردید از شما سپاسگذاریم!' , email)
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserProfileAPIView(RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     authentication_classes = [CsrfExemptSessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request, *args, **kwargs):
         user = request.user
         serializer = ProfileSerializer(user)
@@ -99,6 +100,7 @@ class ForgotPasswordAPIView(APIView):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
                 token = default_token_generator.make_token(user)
                 print(f'uid {uid} \n token {token}')
+                # todo "delete print
                 send_mail('reset password',
                           f'url for reset your password : http://127.0.0.1:8000/reset-password/{uid}/{token}/',
                           from_email=settings.EMAIL_HOST, recipient_list=[email, ],
@@ -112,6 +114,7 @@ class ResetPasswordAPIView(APIView):
     def post(self, request, uidb64, token):
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
+            # todo : delete print
             print(f'uidb64 {uid} \n token {token} \n uid {uid}')
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
@@ -126,6 +129,19 @@ class ResetPasswordAPIView(APIView):
 
         user.set_password(password)
         user.save()
+        logs.apply_async(
+            kwargs={
+                "level": "info",
+                "status_code": '200',
+                "views": "ResetPasswordAPIView",
+                "message": f"../reset-password/uidb64/token/ \n کاربر {user.phone}  پسورد خود را تغییر داد!",
+                "action": request.method,
+                "object_id": user.id,
+                "ip_address": ip_address(request),
+                "user_agent": get_user_agent(request),
+                "from_user": user.pk,
+            }
+        )
         return Response({'message': 'رمز عبور با موفقیت تغییر یافت'}, status=status.HTTP_200_OK)
 
 
@@ -135,5 +151,10 @@ class LogoutAPIView(APIView):
         user = request.user
         if user.is_authenticated:
             logout(request)
-            return Response({"logout":"success"}, status=status.HTTP_200_OK)
+            return Response({"logout": "success"}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class AcivateAccountAPIView(APIView):
+    pass
+    # todo

@@ -15,7 +15,8 @@ class Type(models.TextChoices):
 
 class Status(models.TextChoices):
     PENDING = 'pending', 'در انتظار بررسی'
-    APPROVED = 'approved', 'تایید شده'
+    OBSERVED = 'observed', 'مشاهده شده'
+    DONE = 'done', 'انجام شده'
     REJECTED = 'rejected', 'رد شده'
 
 
@@ -48,7 +49,6 @@ class Request(models.Model):
     class Meta:
         verbose_name = _('درخواست')
         verbose_name_plural = _('درخواست‌ها')
-        ordering = ['-created_at']
 
         indexes = [
             models.Index(fields=['phone']),
@@ -84,6 +84,7 @@ class ConsultingRequest(Request):
     class Meta:
         verbose_name = _('درخواست مشاوره')
         verbose_name_plural = _('درخواست‌های مشاوره')
+        ordering = ['-created_at']
         indexes = [
             models.Index(fields=['phone'], name='consulting_phone'),
             models.Index(fields=['status'], name='consulting_status'),
@@ -114,6 +115,7 @@ class SprayingRequest(Request):
     class Meta:
         verbose_name = _('درخواست سم‌پاشی')
         verbose_name_plural = _('درخواست‌های سم‌پاشی')
+        ordering = ['-created_at']
         indexes = [
             models.Index(fields=['phone'], name='spraying_phone'),
             models.Index(fields=['status'], name='spraying_status'),

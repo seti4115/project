@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.utils.translation import gettext_lazy as _
+from persiantools.jdatetime import JalaliDateTime
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import Serializer
@@ -48,15 +49,13 @@ class RegisterSerializer(Serializer):
         if data:
             user = User.objects.filter(phone=data)
             if user.exists():
-                raise serializers.ValidationError(_('این شماره تلفن قبلا ثبت شده است!'))
+                raise serializers.ValidationError({"email": "این ایمیل قبلاً ثبت شده است."})
         return data
 
-    def validate_username(self, data):
-        if data:
-            user = User.objects.filter(username=data)
-            if user.exists():
-                raise serializers.ValidationError(_('این نام کاربری قبلا ثبت شده است!'))
-        return data
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise ValidationError({"username": "این نام کاربری قبلاً ثبت شده است."})
+        return value
 
     def validate(self, data):
 
@@ -64,7 +63,7 @@ class RegisterSerializer(Serializer):
         confirm_password = data.get('confirm_password')
 
         if password != confirm_password:
-            raise ValidationError(_("رمز عبور و تکرار رمز عبور مطابقت ندارد!"))
+            raise ValidationError({'password': _("رمز عبور و تکرار رمز عبور مطابقت ندارد!")})
 
         return data
 
@@ -76,13 +75,19 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(allow_blank=True)
     username = serializers.CharField(allow_blank=True)
     email = serializers.EmailField(allow_blank=True)
-    date_joined = serializers.DateTimeField(read_only=True)
+    date_joined = serializers.SerializerMethodField(source="get_date_joined", read_only=True)
 
     class Meta:
         model = User
         fields = [
-            'first_name', 'last_name', 'username', 'phone', 'email', 'date_joined'
+            'id', 'first_name', 'last_name', 'username', 'phone', 'email', 'date_joined'
         ]
+
+    def get_date_joined(self, obj):
+        if not obj.date_joined:
+            return None
+        jdt = JalaliDateTime.to_jalali(obj.date_joined)
+        return jdt.strftime("%Y/%m/%d %H:%M:%S")
 
 
 class ForgotPasswordSerializer(serializers.Serializer):
